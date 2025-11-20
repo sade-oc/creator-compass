@@ -4,5 +4,10 @@
       "name": "Creator Compass Architecture",
       "url": "https://www.figma.com/make/avJxMpDtcKKpcMBd65dhFW/System-Architecture-Diagram?t=BHxaq6g962pMq2XS-1"
     }
-  ]
+  ],
+  "python.testing.pytestArgs": [
+    "."
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

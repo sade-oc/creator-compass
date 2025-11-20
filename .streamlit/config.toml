@@ -1,0 +1,7 @@
+[theme]
+primaryColor = "#1e40af"         # brand.deepBlue (primary actions)
+backgroundColor = "#000000"      # page background (dark)
+secondaryBackgroundColor = "#0a0a0a"  # card / panel background (approx translucent)
+textColor = "#f1f5f9"            # primary text (light)
+font = "sans serif"
+

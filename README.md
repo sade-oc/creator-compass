@@ -44,7 +44,6 @@ _High-level architecture showing the 6 core AI services integrated with Streamli
 - **APIs**: Twitter/X API for trend data
 - **Deployment**: Docker containers, cloud hosting ready
 
-
 ## 🎯 Use Cases
 
 Creator Compass supports 7 core use cases:
@@ -56,3 +55,26 @@ Creator Compass supports 7 core use cases:
 5. **UC-05**: User Profile Management
 6. **UC-06**: Content Performance Analytics
 7. **UC-07**: Optimal Posting Schedule
+
+## Run locally
+
+To run the prototype locally (macOS / zsh):
+
+1. Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Launch the Streamlit app:
+
+```bash
+streamlit run app/main.py
+```

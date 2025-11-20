@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st # type: ignore
 from utils.helpers import load_examples
 
 st.set_page_config(page_title="Creator Compass", layout="wide")
