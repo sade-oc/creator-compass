@@ -4,12 +4,12 @@ An AI-powered content creation platform that helps content creators discover tre
 
 ## Features
 
-- ** Trend Analysis** - Discover trending topics across platforms and niches
-- ** AI Content Generation** - Generate personalized content ideas with engagement predictions
-- ** Engagement Optimization** - Get AI-powered suggestions to improve content performance
-- ** Explainable AI** - Understand why AI made specific recommendations
-- ** User Profiling** - Personalized recommendations based on creator preferences
-- ** Optimal Scheduling** - Find the best times to post for maximum engagement
+- Trend Analysis- Discover trending topics across platforms and niches
+- AI Content Generation - Generate personalized content ideas with engagement predictions
+- Engagement Optimization - Get AI-powered suggestions to improve content performance
+- Explainable AI - Understand why AI made specific recommendations
+- User Profiling - Personalized recommendations based on creator preferences
+- Optimal Scheduling - Find the best times to post for maximum engagement
 
 ## System Architecture
 

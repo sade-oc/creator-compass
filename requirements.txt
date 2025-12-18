@@ -4,3 +4,4 @@ pytest
 scikit-learn
 shap
 lime
+requests
