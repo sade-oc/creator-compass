@@ -1,20 +1,26 @@
-"""Reddit trend ingestion script.
+"""Twitter trend ingestion script.
 
-Fetches niche-specific trends from Reddit subreddits.
+Fetches trending topics from Twitter via Apify scraper.
 """
 #Import statements
 from __future__ import annotations
 import csv
+import os
 from pathlib import Path
 from typing import Any
-from .fetch_reddit import fetch_all_niches as fetch_reddit_trends
+from dotenv import load_dotenv
+from .fetch_twitter_apify import fetch_twitter_trends
+
+# Load environment variables
+load_dotenv()
+
 
 # Save trends to CSV
 def save_trends(
     trends: list[dict[str, Any]],
     output_path: Path
 ) -> None:
-    # Save trends to a CSV file.
+    # Save the trends to the CSV
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = ["topic", "score", "source", "discovered_at", "region", "niche"]
     
@@ -26,36 +32,51 @@ def save_trends(
 
 # Fetch all trends and save to CSV
 def fetch_all_trends(
-    reddit_posts_per_sub: int = 5,
+    max_trends: int = 50,
     output_path: Path = Path("data/examples/trends.csv")
 ) -> None:
-    # Fetch trends from Reddit and save to CSV.
+    """Fetch trends from Twitter and save to CSV."""
     print("=" * 60)
+    print("TWITTER TREND INGESTION")
     print("=" * 60)
     
-    # Fetch Reddit trends
-    print("\nFetching Reddit trends by niche...")
-    reddit_trends = fetch_reddit_trends(posts_per_subreddit=reddit_posts_per_sub)
-    print(f"✓ Got {len(reddit_trends)} trends")
+    # Check for API token
+    apify_token = os.getenv("APIFY_API_TOKEN")
+    if not apify_token:
+        print("\n✗ ERROR: APIFY_API_TOKEN not found in environment")
+        print("  Set it in your .env file or export it")
+        return
+    
+    # Fetch Twitter trends
+    print("\nFetching Twitter trends (US, live)...")
+    try:
+        twitter_trends = fetch_twitter_trends(
+            apify_token=apify_token,
+            max_trends=max_trends
+        )
+        print(f"✓ Got {len(twitter_trends)} Twitter trends")
+    except Exception as e:
+        print(f"✗ Twitter fetch failed: {e}")
+        return
     
     # Save to CSV
     print(f"\nSaving to {output_path}...")
-    save_trends(reddit_trends, output_path)
+    save_trends(twitter_trends, output_path)
     
     print(f"\n{'=' * 60}")
-    print(f"SUCCESS: {len(reddit_trends)} trends saved to {output_path}")
+    print(f"SUCCESS: {len(twitter_trends)} trends saved to {output_path}")
     print(f"{'=' * 60}")
 
 
 if __name__ == "__main__":
     import argparse
     
-    parser = argparse.ArgumentParser(description="Fetch Reddit trends by niche")
+    parser = argparse.ArgumentParser(description="Fetch Twitter trends via Apify")
     parser.add_argument(
-        "--posts-per-sub",
+        "--max-trends",
         type=int,
-        default=5,
-        help="Posts to fetch per subreddit"
+        default=50,
+        help="Maximum number of trends to fetch"
     )
     parser.add_argument(
         "--out",
@@ -66,6 +87,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     fetch_all_trends(
-        reddit_posts_per_sub=args.posts_per_sub,
+        max_trends=args.max_trends,
         output_path=args.out
     )

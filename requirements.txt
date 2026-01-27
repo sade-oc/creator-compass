@@ -5,3 +5,5 @@ scikit-learn
 shap
 lime
 requests
+apify-client
+python-dotenv

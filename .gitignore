@@ -1,3 +1,5 @@
+# === GitHubs Python Template ===
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -213,3 +215,17 @@ __marimo__/
 !*.png
 !*.svg
 !*.pdf
+
+
+# === Creator Compass Project Specific ===
+
+# Large data files (don't commit raw/processed datasets)
+data/raw/
+data/processed/
+
+# IDE folders (already covered but being explicit)
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
