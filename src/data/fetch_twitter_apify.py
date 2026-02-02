@@ -1,5 +1,4 @@
 """Twitter (X) trend ingestion via Apify scraper.
-
 Fetches trending topics from Twitter using Apify's Twitter Trends Scraper.
 Maps trends to niches based on keywords.
 """
@@ -11,6 +10,7 @@ from datetime import datetime, timezone
 from typing import Any
 from dotenv import load_dotenv
 from apify_client import ApifyClient
+
 from .niche_config import get_all_niches, get_keywords_for_niche
 
 # Load environment variables from .env file
@@ -31,6 +31,7 @@ def normalise_tweet_volumes(volumes: list[int]) -> list[float]:
         out.append(round(val, 1))
     return out
 
+# TODO: AI Categorisation upgrade 
 
 def categorise_trend_to_niche(topic: str) -> str:
   
@@ -94,10 +95,54 @@ def categorise_trend_to_niche(topic: str) -> str:
     
     return "General"
 
+# For each trend we want to get the top tweets for it to see what the general consensus is 
+def fetch_tweets_for_trend(
+    topic: str,
+    apify_token: str,
+    max_tweets: int = 100
+) -> list[dict[str, Any]]:
+    
+    client = ApifyClient(apify_token)
+    
+    # Build search query
+    run_input = {
+        "searchTerms": [topic],
+        "sort": "Top", # We want to see what the more viral tweets are saying 
+        "maxItems": max_tweets,
+        "tweetLanguage": "en"
+    }
+    
+    print(f"    Fetching {max_tweets} tweets for: {topic}")
+    
+    try:
+        # Run tweet scraper
+        run = client.actor("apidojo/tweet-scraper").call(run_input=run_input)
+        
+        # Extract tweets
+        tweets = []
+        if run and "defaultDatasetId" in run:
+            for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+                tweets.append({
+                    "text": item.get("text", ""),
+                    "likes": item.get("likeCount", 0),
+                    "retweets": item.get("retweetCount", 0),
+                    "replies": item.get("replyCount", 0),
+                    "timestamp": item.get("createdAt", ""),
+                    "author": item.get("author", {}).get("userName", "")
+                })
+        
+        print(f"    ✓ Got {len(tweets)} tweets")
+        return tweets
+    
+    except Exception as e:
+        print(f"    ✗ Error fetching tweets: {e}")
+        return []
+
 
 def fetch_twitter_trends(
     apify_token: str | None = None,
-    max_trends: int = 50
+    max_trends: int = 50,
+    fetch_tweets: bool = True,
 ) -> list[dict[str, Any]]:
    
     # Fetch trending topics from Twitter via Apify scraper (US trends, live only).
@@ -145,11 +190,7 @@ def fetch_twitter_trends(
     # Parse and normalize trends
     trends = []
     now = datetime.now(timezone.utc).isoformat()
-    
-    # Since Apify doesn't provide volumes, use rank-based scoring
-    # Top trends get higher scores (9.5 for #1, decreasing to 7.0)
-
-    
+   
     # Build trend records with rank-based scoring
     for i, item in enumerate(raw_trends[:max_trends]):
         # Try different possible field names for topic
@@ -170,13 +211,20 @@ def fetch_twitter_trends(
         # Categorise into niche
         niche = categorise_trend_to_niche(topic)
         
+        # Only fetch tweets if requested (for Stage 2)
+        if fetch_tweets:
+            tweets = fetch_tweets_for_trend(topic, token, max_tweets=50)
+        else:
+            tweets = []
+
         trends.append({
             "topic": topic[:180],
             "score": rank_score,
             "source": "twitter",
             "discovered_at": now,
             "region": "twitter_us",
-            "niche": niche
+            "niche": niche,
+            "tweets": tweets 
         })
     
     print(f"  ✓ Processed {len(trends)} trends, categorised into niches")

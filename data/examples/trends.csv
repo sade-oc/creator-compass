@@ -1,31 +1,3 @@
-topic,score,source,discovered_at,region,niche
-Alex Pretti,9.5,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Super Bowl,9.4,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Minnesota,9.3,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Pro Bowl,9.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Bovino,9.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-#WWERaw,9.1,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Entertainment/Media
-Homan,9.0,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Walz,8.9,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Patriots,8.8,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Minneapolis,8.8,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Sam Darnold,8.7,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Highguard,8.6,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Tech/Gaming
-Signal,8.5,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Tech/Gaming
-Noem,8.4,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Seattle,8.3,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Pats,8.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-Kyle Rittenhouse,8.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Coco Gauff,8.1,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Laken Riley,8.0,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-Drake Maye,7.9,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Good Tuesday,7.8,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Clawdbot,7.8,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Politics/News
-TikTok,7.7,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Tech/Gaming
-Arizona,7.6,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Tech/Gaming
-#OlandriaxRahulMishra,7.5,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Broncos,7.4,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,Sports
-#RahulMishraCouture,7.3,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-El Centro,7.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Kanye,7.2,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
-Border Patrol,7.1,twitter,2026-01-27T11:41:10.742382+00:00,twitter_us,General
+topic,score,source,discovered_at,region,niche,tweet_count,keywords,sentiment,hashtags
+Grammys,9.5,twitter,2026-02-02T11:22:59.969244+00:00,twitter_us,General,79,"grammys, year, bad, bunny, jesus, album, noah, trump, ice, 2026","{'average': -0.0, 'positive': 21, 'neutral': 41, 'negative': 17, 'total': 79}","#grammys, #grammy, #rosé, #addisonrae, #rose, #heatedrivalry"
+Good Monday,8.2,twitter,2026-02-02T11:22:59.969244+00:00,twitter_us,General,1,,"{'average': 0.0, 'positive': 0, 'neutral': 1, 'negative': 0, 'total': 1}",

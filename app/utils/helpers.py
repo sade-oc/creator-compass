@@ -3,8 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 import pandas as pd
+import json
 
 EXAMPLES_PATH  = Path("data/examples/trends.csv")
+TRENDS_JSON_PATH = Path("data/examples/trends.json")
 EXPECTED_COLUMNS = [ "topic", "score", "source", "discovered_at", "region", "niche"]   
 
 
@@ -32,3 +34,17 @@ def load_examples(csv_path: Optional[Path] = None) -> pd.DataFrame:
     df = df[EXPECTED_COLUMNS + extras]
 
     return df
+
+def load_trends_json(json_path: Optional[Path] = None) -> list[dict]:
+    #Load trends with NLP data from JSON.
+    path = json_path or TRENDS_JSON_PATH
+    
+    if not path.exists():
+        return []
+    
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data
+    except (json.JSONDecodeError, IOError):
+        return []
