@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from data.fetch_twitter_apify import fetch_twitter_trends, fetch_tweets_for_trend
 from pipelines.nlp_processor import process_trend_nlp
-st.title("🔍 Trend Discovery")
+st.title("Trend Discovery")
 
 # Sidebar - Stage 1: Quick Preview
 st.sidebar.header("Stage 1: Browse Trends")
@@ -23,7 +23,7 @@ selected_niche = st.sidebar.selectbox("Filter by Niche", niche_options)
 max_trends = st.sidebar.slider("Number of trends", 10, 50, 25)
 
 # Stage 1: Fetch trending topics (FAST - no tweets)
-if st.sidebar.button("🚀 Get Trending Topics", type="primary"):
+if st.sidebar.button("Get Trending Topics", type="primary"):
     apify_token = os.getenv("APIFY_API_TOKEN")
     if not apify_token:
         st.error("APIFY_API_TOKEN not found. Set it in your .env file.")
@@ -130,8 +130,7 @@ if st.button("Analyze Selected Trends", type="primary", disabled=len(selected_to
                 
                 # Add tweets to trend
                 trend["tweets"] = tweets
-
-        
+                
                 # Process NLP
                 analyzed_trend = process_trend_nlp(trend)
                 

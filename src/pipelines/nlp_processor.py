@@ -2,9 +2,11 @@
 
 import re
 from collections import Counter
-from typing import Any
+from typing import Any, Optional
 import nltk
 from textblob import TextBlob
+import os
+from openai import OpenAI
 
 # Download required NLTK data (run once)
 try:
@@ -83,9 +85,111 @@ def analyze_sentiment(tweets: list[dict[str, Any]]) -> dict[str, Any]:
         "total": len(sentiments)
     }
 
+# Categorising the trends using gpt 4 for more acturate niche categorisation 
+def categorise_with_gpt(tweets: Optional[list[dict[str, Any]]] = None, topic: str = "") -> str:
+   
+    
+    if not topic:
+        return "General"
+    
+    # Get API key
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("OPENAI_API_KEY not found, falling back to General category")
+        return "General"
+    
+    # Define categories once
+    categories_text = """Categories:
+- Entertainment/Media (music, movies, TV, celebrities, awards shows, performances)
+- Sports (games, teams, athletes, competitions, leagues)
+- Tech/Gaming (technology, apps, video games, gaming, AI, crypto)
+- Politics/News (government, elections, political figures, breaking news)
+- Fitness/Wellness (health, workouts, mental health, wellness)
+- Beauty/Fashion (makeup, style, fashion, clothing, design)
+- Food/Cooking (recipes, restaurants, chefs, cuisine)
+- General (everything else, greetings, general topics)"""
+    
+    try:
+        client = OpenAI(api_key=api_key)
+        
+        # Build prompt based on available data
+        if tweets and len(tweets) > 0:
+            # Stage 2: Use tweet context for more accuracy
+            sample_tweets = [t.get("text", "")[:150] for t in tweets[:5]]
+            tweets_context = "\n".join([f"- {tweet}" for tweet in sample_tweets if tweet])
+            
+            prompt = f"""Categorize this trending topic into ONE category.
+
+Trending Topic: {topic}
+
+Sample Tweets:
+{tweets_context}
+
+{categories_text}
+
+Return ONLY the category name, nothing else."""
+        else:
+            # Stage 1: Categorize based on topic name only
+            prompt = f"""Categorize this trending topic into ONE category.
+
+Trending Topic: {topic}
+
+{categories_text}
+
+Examples:
+- "Grammys" → Entertainment/Media
+- "#SuperBowl" → Sports
+- "ChatGPT" → Tech/Gaming
+- "Biden" → Politics/News
+- "#MondayMotivation" → General
+
+Return ONLY the category name, nothing else."""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=20
+        )
+        
+        category = response.choices[0].message.content
+        if category is None:
+            return "General"
+        category = category.strip()
+        
+        # Validate response
+        valid_categories = [
+            "Entertainment/Media", "Sports", "Tech/Gaming", "Politics/News",
+            "Fitness/Wellness", "Beauty/Fashion", "Food/Cooking", "General"
+        ]
+        
+        if category in valid_categories:
+            print(f"GPT categorised '{topic}' as: {category}")
+            return category
+        else:
+            print(f"Invalid GPT response: {category}, using General")
+            return "General"
+            
+    except Exception as e:
+        print(f"    ✗ GPT error: {e}, falling back to General")
+        return "General"
+
 
 def process_trend_nlp(trend: dict[str, Any]) -> dict[str, Any]:
-    """Process all NLP for a single trend."""
+    """Process all NLP analysis for a single trend.
+    
+    Adds the following fields to the trend dict:
+    - keywords: Top 10 keywords with counts
+    - hashtags: Top 10 hashtags with counts  
+    - sentiment: Sentiment analysis (average, positive/neutral/negative counts)
+    - niche: GPT-categorised niche
+    
+    Args:
+        trend: Dict containing 'topic' and 'tweets' fields
+        
+    Returns:
+        Updated trend dict with NLP analysis
+    """
     tweets = trend.get("tweets", [])
     
     if not tweets:
@@ -96,99 +200,9 @@ def process_trend_nlp(trend: dict[str, Any]) -> dict[str, Any]:
     trend["hashtags"] = extract_hashtags(tweets)
     trend["sentiment"] = analyze_sentiment(tweets)
 
-    # Re-categorize based on extracted keywords and content (more accurate!)
-    trend["niche"] = categorize_from_content(trend["keywords"], tweets)
+    # Use GPT for intelligent categorization
+    topic = trend.get("topic", "")
+    trend["niche"] = categorise_with_gpt(tweets, topic)
     
     return trend
 
-
-def categorize_from_content(keywords: list[tuple[str, int]], tweets: list[dict[str, Any]]) -> str:
-    """Categorize trend using extracted keywords and tweet context."""
-    
-    if not keywords and not tweets:
-        return "General"
-    
-    # Define category patterns - keywords that strongly indicate each category
-    category_patterns = {
-        "Entertainment/Media": {
-            "strong": ["grammys", "grammy", "oscar", "emmy", "award", "concert", "album", 
-                      "song", "music", "movie", "film", "netflix", "show", "episode",
-                      "performance", "artist", "rapper", "singer", "actor", "actress"],
-            "moderate": ["stage", "tour", "release", "debut", "premiere", "streaming",
-                        "watched", "listen", "video", "entertainment", "celebrity"]
-        },
-        "Sports": {
-            "strong": ["game", "team", "player", "score", "goal", "championship",
-                      "playoff", "season", "league", "coach", "win", "victory",
-                      "nfl", "nba", "mlb", "nhl", "football", "basketball", "soccer"],
-            "moderate": ["match", "stadium", "fans", "draft", "athletic", "sport"]
-        },
-        "Tech/Gaming": {
-            "strong": ["gaming", "gamer", "console", "playstation", "xbox", "nintendo",
-                      "twitch", "streamer", "gameplay", "tech", "ai", "software",
-                      "app", "update", "launch", "crypto", "bitcoin", "blockchain"],
-            "moderate": ["technology", "digital", "online", "virtual", "code", "developer"]
-        },
-        "Politics/News": {
-            "strong": ["president", "senate", "congress", "election", "vote", "政治",
-                      "government", "political", "politician", "law", "bill", "policy",
-                      "democrat", "republican", "debate", "campaign"],
-            "moderate": ["breaking", "news", "report", "statement", "announcement"]
-        },
-        "Fitness/Wellness": {
-            "strong": ["workout", "fitness", "gym", "training", "exercise", "health",
-                      "wellness", "yoga", "meditation", "diet", "nutrition"],
-            "moderate": ["healthy", "weight", "muscle", "cardio", "mental"]
-        },
-        "Beauty/Fashion": {
-            "strong": ["makeup", "beauty", "skincare", "fashion", "style", "outfit",
-                      "dress", "designer", "model", "runway", "cosmetics"],
-            "moderate": ["look", "wear", "hair", "nails", "clothing"]
-        },
-        "Food/Cooking": {
-            "strong": ["recipe", "cooking", "chef", "restaurant", "food", "meal",
-                      "dish", "cuisine", "baking", "kitchen"],
-            "moderate": ["tasty", "delicious", "eat", "dinner", "lunch", "breakfast"]
-        }
-    }
-    
-    # Score each category based on keyword matches
-    category_scores = {}
-    
-    for category, patterns in category_patterns.items():
-        score = 0
-        
-        # Check keywords (already extracted and cleaned!)
-        for keyword, count in keywords[:15]:  # Top 15 keywords
-            kw_lower = keyword.lower()
-            
-            # Strong match: 3 points × frequency
-            if kw_lower in patterns["strong"]:
-                score += 3 * min(count, 10)  # Cap frequency impact
-            
-            # Moderate match: 1 point × frequency
-            elif kw_lower in patterns["moderate"]:
-                score += 1 * min(count, 5)
-        
-        # Also check tweet text for context (but weighted less)
-        if tweets:
-            sample_text = " ".join([t.get("text", "").lower() for t in tweets[:10]])
-            
-            for strong_kw in patterns["strong"]:
-                if strong_kw in sample_text:
-                    score += 2
-            
-            for mod_kw in patterns["moderate"]:
-                if mod_kw in sample_text:
-                    score += 1
-        
-        if score > 0:
-            category_scores[category] = score
-    
-    # Return category with highest score (require minimum score of 5 to avoid false positives)
-    if category_scores:
-        best_category = max(category_scores, key=lambda x: category_scores[x])
-        if category_scores[best_category] >= 5:
-            return best_category
-    
-    return "General"

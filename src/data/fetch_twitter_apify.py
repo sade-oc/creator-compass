@@ -31,70 +31,6 @@ def normalise_tweet_volumes(volumes: list[int]) -> list[float]:
         out.append(round(val, 1))
     return out
 
-# TODO: AI Categorisation upgrade 
-
-def categorise_trend_to_niche(topic: str) -> str:
-  
-    # Map a Twitter trend to a niche based on enhanced pattern matching.
-    topic_lower = topic.lower()
-    
-    # Sports: Teams, leagues, events, and common athlete names
-    sports_patterns = [
-        'bowl', 'nfl', 'nba', 'mlb', 'nhl', '#wwe', 'ufc', 'soccer', 'football',
-        'patriots', 'rams', 'seahawks', 'broncos', 'chiefs', 'cowboys', 'pats',
-        'lakers', 'celtics', 'warriors', 'yankees', 'dodgers',
-        'playoffs', 'championship', 'finals', 'game', 'match',
-        'darnold', 'mahomes', 'brady', 'curry', 'lebron', 'messi',
-        'seattle', 'dallas', 'boston', 'lakers'  # Cities often refer to teams in sports context
-    ]
-    # Check for sport-related hashtags
-    if topic.startswith('#') and any(s in topic_lower for s in ['wwe', 'nfl', 'nba', 'mlb', 'ufc']):
-        return "Entertainment/Media"
-    
-    if any(p in topic_lower for p in sports_patterns):
-      return "Sports"
-    
-    # Gaming: Game titles, gaming terms, gaming hashtags
-    gaming_patterns = [
-        'game', 'gaming', 'gamer', 'esports', 'twitch', 'fortnite', 'cod',
-        'minecraft', 'roblox', 'valorant', 'league', 'warzone', 'apex',
-        'playstation', 'xbox', 'nintendo', 'steam', 'highguard'
-    ]
-    if any(p in topic_lower for p in gaming_patterns):
-        return "Tech/Gaming"
-    
-    # Politics/News 
-    political_patterns = [
-        'politics', 'senate', 'congress', 'president', 'governor',
-        'election', 'vote', 'bill', 'law', 'capitol', 'white house',
-        'pretti', 'homan', 'walz', 'noem', 'rittenhouse', 'riley',
-        'minnesota', 'minneapolis', 'bovino'  # Current political trend names
-    ]
-    if any(p in topic_lower for p in political_patterns):
-      return "Politics/News"
-    
-    # Tech/Apps: Signal, social media, tech companies
-    tech_patterns = ['signal', 'telegram', 'whatsapp', 'tiktok', 'instagram', 
-                     'twitter', 'meta', 'google', 'apple', 'ai', 'tech']
-    if any(p in topic_lower for p in tech_patterns):
-        return "Tech/Gaming"
-    
-    # Now check creator-focused niches with keyword matching
-    niches = get_all_niches()
-    niche_scores = {}
-    
-    for niche in niches:
-        keywords = get_keywords_for_niche(niche)
-        score = sum(1 for kw in keywords if kw.lower() in topic_lower)
-        if score > 0:
-            niche_scores[niche] = score
-    
-    # Return the niche with highest score, or 'General' if none match
-    if niche_scores:
-        return max(niche_scores, key=lambda k: niche_scores.get(k, 0))
-    
-    return "General"
-
 # For each trend we want to get the top tweets for it to see what the general consensus is 
 def fetch_tweets_for_trend(
     topic: str,
@@ -208,10 +144,20 @@ def fetch_twitter_trends(
         rank_score = max(7.0, 9.5 - (i * 2.5 / max_trends))
         rank_score = round(rank_score, 1)
         
-        # Categorise into niche
-        niche = categorise_trend_to_niche(topic)
+        # Categorize using GPT
+        if not fetch_tweets:
+            # Stage 1: Use GPT to categorize by topic name only
+            import sys
+            from pathlib import Path
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+            from pipelines.nlp_processor import categorise_with_gpt
+            
+            niche = categorise_with_gpt(tweets=None, topic=topic)
+        else:
+            # Stage 2: Placeholder - will be overridden by GPT categorization in NLP processing
+            niche = "General"
         
-        # Only fetch tweets if requested (for Stage 2)
+        # Only fetch tweets if requested (Stage 2 - user selected trends)
         if fetch_tweets:
             tweets = fetch_tweets_for_trend(topic, token, max_tweets=50)
         else:
