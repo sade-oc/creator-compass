@@ -40,7 +40,9 @@ if st.sidebar.button("Get Trending Topics", type="primary"):
             
             # Store in session state
             st.session_state.preview_trends = trends
-            st.session_state.analyzed_trends = {}  # Reset analyzed trends
+            # Initialise analyzed_trends if it doesn't exist (don't reset existing ones)
+            if "analyzed_trends" not in st.session_state:
+                st.session_state.analyzed_trends = {}
             st.success(f"Loaded {len(trends)} trending topics!")
             
         except Exception as e:
@@ -88,13 +90,13 @@ st.subheader("Stage 2: Deep Analysis")
 # Multi-select for trends
 topic_names = [t["Topic"] for t in preview_data]
 selected_topics = st.multiselect(
-    "Select trends to analyze (pick 3-5 for best performance)",
+    "Select trends to analyse (pick 3-5 for best performance)",
     topic_names,
     max_selections=10
 )
 
 # Analyze button
-if st.button("Analyze Selected Trends", type="primary", disabled=len(selected_topics) == 0):
+if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_topics) == 0):
     if len(selected_topics) > 5:
         st.warning("Analyzing more than 5 trends may take 3-5 minutes. Consider selecting fewer.")
     
@@ -115,7 +117,7 @@ if st.button("Analyze Selected Trends", type="primary", disabled=len(selected_to
                 progress_bar.progress((i + 1) / len(selected_topics))
                 continue
             
-            status_text.text(f"Analyzing: {topic}")
+            status_text.text(f"Analysing: {topic}")
             
             try:
                 # Find the trend in preview
@@ -146,7 +148,7 @@ if st.button("Analyze Selected Trends", type="primary", disabled=len(selected_to
         status_text.empty()
         st.success(f"Analysis complete for {len(analyzed)} trends!")
 
-# Display analyzed trends
+# Display analysed trends
 if "analyzed_trends" in st.session_state and st.session_state.analyzed_trends:
     st.markdown("---")
     st.subheader("Analysis Results")
