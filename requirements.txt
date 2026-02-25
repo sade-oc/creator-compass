@@ -6,4 +6,5 @@ shap
 lime
 requests
 apify-client
-python-dotenvopenai==1.102.0
+python-dotenv
+openai
