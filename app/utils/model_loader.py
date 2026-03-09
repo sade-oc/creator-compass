@@ -16,44 +16,55 @@ from datetime import datetime
 # Project paths
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 MODELS_DIR = PROJECT_ROOT / "models"
-MODEL_PATH = MODELS_DIR / "engagement_model_logistic_regression.pkl"
-SHAP_PATH = MODELS_DIR / "shap_explainer.pkl"
-CONFIG_PATH = MODELS_DIR / "model_config.json"
+MODEL_PATH = MODELS_DIR / "engagement_model_random_forest.joblib"  # Random Forest model
+METADATA_PATH = MODELS_DIR / "model_metadata.json"  # Model metadata with feature list
+CONFIG_PATH = MODELS_DIR / "model_config_rf.json"  # RF model config (replace old Ridge config)
 
-# Feature list (MUST match training order else predictions may be wrong - 22 features)
-REQUIRED_FEATURES = [
-    # Trend features (5)
-    "has_trend",
-    "trend_rising",
-    "trend_seasonal",
-    "trend_stable",
-    "trend_declining",
-    
-    # Temporal features (6)
-    "posting_hour",
-    "posting_day",
-    "posting_month",
-    "is_peak_hour",
-    "is_weekend",
-    "is_evening",
-    
-    # Content features (7)
-    "caption_length",
-    "hashtag_count",
-    "duration_sec",
-    "optimal_hashtag_range",
-    "has_optimal_caption",
-    "has_short_caption",
-    "has_long_caption",
-    
-    # Platform features (3)
-    "platform_tiktok",
-    "platform_instagram",
-    "platform_youtube",
-    
-    # Category feature (1)
-    "category_encoded"
-]
+# Import EngagementExplainer for SHAP explanations
+EngagementExplainer = None  # Type placeholder
+EXPLAINER_AVAILABLE = False
+try:
+    import sys
+    sys.path.insert(0, str(PROJECT_ROOT))
+    from src.xai.explainer import EngagementExplainer
+    EXPLAINER_AVAILABLE = True
+except ImportError:
+    print("Warning: EngagementExplainer not available - XAI features disabled")
+
+# Load feature list from metadata (MUST match training order)
+def _load_features_from_metadata():
+    """Load feature names from model metadata file."""
+    if METADATA_PATH.exists():
+        with open(METADATA_PATH, 'r') as f:
+            metadata = json.load(f)
+        return metadata.get('features', [])
+    return []
+
+REQUIRED_FEATURES = _load_features_from_metadata()
+
+# If metadata not available, fall back to hardcoded list (39 features for RF model)
+if not REQUIRED_FEATURES:
+    REQUIRED_FEATURES = [
+        # Core features
+        "caption_length", "posting_hour", "is_weekend", "duration_sec",
+        "has_emoji", "has_call_to_action",
+        # Platform (one-hot, note: instagram is reference category so not included)
+        "platform_tiktok", "platform_youtube",
+        # Categories (one-hot)
+        "category_art", "category_automotive", "category_beauty", "category_comedy",
+        "category_diy", "category_education", "category_fashion", "category_finance",
+        "category_fitness", "category_food", "category_gaming", "category_lifestyle",
+        "category_music", "category_news", "category_pets", "category_science",
+        "category_sports", "category_tech", "category_travel",
+        # Trends (one-hot)
+        "trend_label_declining", "trend_label_rising", "trend_label_seasonal", "trend_label_stable",
+        # Seasons (one-hot)
+        "season_fall", "season_spring", "season_summer", "season_winter",
+        # Other
+        "media_type_nan", "posting_day_encoded", "caption_bin_encoded", "posting_hour_bin_encoded"
+    ]
+
+print(f"Model features loaded: {len(REQUIRED_FEATURES)} features")
 
 # Platform list
 VALID_PLATFORMS = ['tiktok', 'instagram', 'youtube']
@@ -61,57 +72,78 @@ VALID_PLATFORMS = ['tiktok', 'instagram', 'youtube']
 # Trend types
 VALID_TREND_TYPES = ['rising', 'seasonal', 'stable', 'declining']
 
-# Category mapping (simplified for MVP) - model needs numeric encoding
-CATEGORY_MAPPING = {
-    'tech/gaming': 0,
-    'tech': 0,
-    'gaming': 0,
-    'fashion/beauty': 1,
-    'fashion': 1,
-    'beauty': 1,
-    'finance/crypto': 2,
-    'finance': 2,
-    'crypto': 2,
-    'health/fitness': 3,
-    'health': 3,
-    'fitness': 3,
-    'food/cooking': 4,
-    'food': 4,
-    'cooking': 4,
-    'travel': 5,
-    'entertainment/media': 6,
-    'entertainment': 6,
-    'media': 6,
-    'business/marketing': 7,
-    'business': 7,
-    'marketing': 7,
-    'lifestyle/vlogs': 8,
-    'lifestyle': 8,
-    'vlogs': 8,
-    'celebrities/pop culture': 9,
-    'celebrities': 9,
-    'pop culture': 9,
-    'sports': 10,
-    'politics/news': 11,
-    'politics': 11,
-    'news': 11,
-    'faith/religion': 12,
-    'faith': 12,
-    'religion': 12,
-    'general': 13
+# Valid categories (must match training one-hot columns)
+VALID_CATEGORIES = [
+    'art', 'automotive', 'beauty', 'comedy', 'diy', 'education', 'fashion',
+    'finance', 'fitness', 'food', 'gaming', 'lifestyle', 'music', 'news',
+    'pets', 'science', 'sports', 'tech', 'travel'
+]
+
+# Valid seasons (must match training one-hot columns)
+VALID_SEASONS = ['fall', 'spring', 'summer', 'winter']
+
+# Category aliases for user-facing categories
+CATEGORY_ALIASES = {
+    'technology': 'tech',
+    'tech/gaming': 'tech',
+    'fashion/beauty': 'beauty',
+    'health/fitness': 'fitness',
+    'health': 'fitness',
+    'food/cooking': 'food',
+    'cooking': 'food',
+    'entertainment': 'comedy',
+    'entertainment/media': 'comedy',
+    'media': 'comedy',
+    'business': 'finance',
+    'business/marketing': 'finance',
+    'marketing': 'finance',
+    'lifestyle/vlogs': 'lifestyle',
+    'vlogs': 'lifestyle',
+    'celebrities': 'news',
+    'celebrities/pop culture': 'news',
+    'pop culture': 'news',
+    'politics': 'news',
+    'politics/news': 'news',
+    'faith/religion': 'lifestyle',
+    'faith': 'lifestyle',
+    'religion': 'lifestyle',
+    'finance/crypto': 'finance',
+    'crypto': 'finance',
+    'general': 'lifestyle',
+    'photography': 'art',
 }
 
-# Day of week mapping
-DAY_MAPPING = {
-    'monday': 0,
-    'tuesday': 1,
-    'wednesday': 2,
-    'thursday': 3,
-    'friday': 4,
-    'saturday': 5,
-    'sunday': 6
+# Label encoder mappings (alphabetical order as used by sklearn LabelEncoder)
+# posting_day: Friday=0, Monday=1, Saturday=2, Sunday=3, Thursday=4, Tuesday=5, Wednesday=6
+DAY_LABEL_ENCODER = {
+    'friday': 0, 'monday': 1, 'saturday': 2, 'sunday': 3,
+    'thursday': 4, 'tuesday': 5, 'wednesday': 6
 }
 
+# caption_bin: ['0-50', '101-150', '151-200', '201-300', '300+', '51-100'] -> 0-5 alphabetically
+CAPTION_BIN_ENCODER = {
+    '0-50': 0, '101-150': 1, '151-200': 2, '201-300': 3, '300+': 4, '51-100': 5
+}
+
+# posting_hour_bin: ['Afternoon', 'Evening', 'Morning', 'Night'] -> 0-3 alphabetically
+HOUR_BIN_ENCODER = {
+    'afternoon': 0, 'evening': 1, 'morning': 2, 'night': 3
+}
+
+# Output scaling parameters (loaded from model_config.json at startup)
+# RF model outputs engagement rate directly - light scaling for display
+_OUTPUT_SCALING = {
+    'display_min': 0.01,
+    'display_max': 0.50,  # Cap at 50% engagement (realistic maximum)
+}
+try:
+    if CONFIG_PATH.exists():
+        with open(CONFIG_PATH, 'r') as _f:
+            _cfg = json.load(_f)
+        if 'output_scaling' in _cfg:
+            _OUTPUT_SCALING.update(_cfg['output_scaling'])
+except Exception:
+    pass
 
 
 # MODEL LOADING FUNCTIONS
@@ -137,18 +169,27 @@ def load_model():
 
 
 @st.cache_resource 
-# loads SHAP explainer from disk and caches it for future use
+# loads SHAP explainer using EngagementExplainer class
 def load_shap_explainer():
-  
+    """
+    Load SHAP explainer for engagement predictions.
+    Uses EngagementExplainer class which creates TreeExplainer for Random Forest.
+    """
     try:
-        if not SHAP_PATH.exists():
+        if not EXPLAINER_AVAILABLE or EngagementExplainer is None:
+            raise ImportError("EngagementExplainer not available")
+        
+        if not MODEL_PATH.exists():
             raise FileNotFoundError(
-                f"SHAP explainer not found at {SHAP_PATH}. "
-                "Explainability features may not work."
+                f"Model not found at {MODEL_PATH}. "
+                "Please ensure the model has been trained."
             )
         
-        explainer = joblib.load(SHAP_PATH)
-        print(f"SHAP explainer loaded successfully from {SHAP_PATH}")
+        explainer = EngagementExplainer.load(  # type: ignore
+            str(MODEL_PATH), 
+            str(METADATA_PATH) if METADATA_PATH.exists() else None
+        )
+        print(f"EngagementExplainer loaded successfully with {len(explainer.feature_names)} features")
         return explainer
         
     except Exception as e:
@@ -175,71 +216,121 @@ def load_model_config() -> Dict[str, Any]:
 
 # FEATURE ENGINEERING FUNCTIONS
 
+import re
+
+def _detect_emoji(text: str) -> bool:
+    """Detect if text contains emoji."""
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags
+        "\U00002702-\U000027B0"
+        "\U000024C2-\U0001F251"
+        "]+",
+        flags=re.UNICODE
+    )
+    return bool(emoji_pattern.search(text))
+
+
+def _detect_cta(text: str) -> bool:
+    """Detect if text contains call-to-action keywords."""
+    cta_keywords = [
+        'link in bio', 'follow', 'subscribe', 'click', 'check out',
+        'visit', 'shop', 'buy', 'get', 'download', 'join', 'sign up',
+        'watch', 'see more', 'learn more', 'dm me', 'comment', 'tag'
+    ]
+    text_lower = text.lower()
+    return any(kw in text_lower for kw in cta_keywords)
+
+
+def _get_season(month: int) -> str:
+    """Get season from month (1-12)."""
+    if month in [3, 4, 5]:
+        return 'spring'
+    elif month in [6, 7, 8]:
+        return 'summer'
+    elif month in [9, 10, 11]:
+        return 'fall'
+    else:  # 12, 1, 2
+        return 'winter'
+
+
+def _get_caption_bin(length: int) -> str:
+    """Bin caption length into categories matching training data."""
+    if length <= 50:
+        return '0-50'
+    elif length <= 100:
+        return '51-100'
+    elif length <= 150:
+        return '101-150'
+    elif length <= 200:
+        return '151-200'
+    elif length <= 300:
+        return '201-300'
+    else:
+        return '300+'
+
+
+def _get_hour_bin(hour: int) -> str:
+    """Bin posting hour into time-of-day categories."""
+    if hour < 6:
+        return 'night'
+    elif hour < 12:
+        return 'morning'
+    elif hour < 18:
+        return 'afternoon'
+    else:
+        return 'evening'
+
+
 def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
-   
+    """
+    Prepare features for engagement model prediction.
+    
+    Generates exactly the 39 features expected by the Random Forest model,
+    in the correct order as specified in model_metadata.json.
+    """
     # Extract input with defaults
     caption = input_data.get('caption', '')
-    hashtags = input_data.get('hashtags', [])
     platform = input_data.get('platform', 'tiktok').lower()
     posting_hour = input_data.get('posting_hour', 19)  # Default: 7 PM
-    posting_day = input_data.get('posting_day', 'saturday')  # Default: Saturday
+    posting_day = input_data.get('posting_day', 'saturday').lower()  # Default: Saturday
     duration_sec = input_data.get('duration_sec', 30)
-    has_trend = input_data.get('has_trend', 0)
-    trend_type = input_data.get('trend_type', None)
-    category = input_data.get('category', 'general').lower()
+    trend_type = input_data.get('trend_type', None)  # 'rising', 'seasonal', 'stable', 'declining'
+    category = input_data.get('category', 'lifestyle').lower()
+    month = input_data.get('month', datetime.now().month)  # For season calculation
+    has_media = input_data.get('has_media', True)  # Whether post has media
     
-    # Initialize feature dictionary
+    # Normalize category using aliases
+    category = CATEGORY_ALIASES.get(category, category)
+    if category not in VALID_CATEGORIES:
+        category = 'lifestyle'  # Default fallback
+    
+    # Initialize feature dictionary (in model feature order)
     features = {}
     
-  
-    # 1. TREND FEATURES
- 
-    features['has_trend'] = int(has_trend)
-    
-    # One-hot encode trend type (only if has_trend=1)
-    if features['has_trend'] == 1 and trend_type:
-        trend_type_lower = trend_type.lower()
-        features['trend_rising'] = 1 if trend_type_lower == 'rising' else 0
-        features['trend_seasonal'] = 1 if trend_type_lower == 'seasonal' else 0
-        features['trend_stable'] = 1 if trend_type_lower == 'stable' else 0
-        features['trend_declining'] = 1 if trend_type_lower == 'declining' else 0
-    else:
-        features['trend_rising'] = 0
-        features['trend_seasonal'] = 0
-        features['trend_stable'] = 0
-        features['trend_declining'] = 0
-    
-
-    # 2. TEMPORAL FEATURES
+    # ══════════════════════════════════════════════════════════════════════════
+    # 1. CORE NUMERIC FEATURES (features 1-6)
+    # ══════════════════════════════════════════════════════════════════════════
+    features['caption_length'] = len(caption)
     features['posting_hour'] = int(posting_hour)
     
-    # Convert day to number if string
+    # is_weekend: based on day name
     if isinstance(posting_day, str):
-        features['posting_day'] = DAY_MAPPING.get(posting_day.lower(), 5)  # Default Saturday
+        day_lower = posting_day.lower()
+        features['is_weekend'] = 1 if day_lower in ['saturday', 'sunday'] else 0
     else:
-        features['posting_day'] = int(posting_day)
+        features['is_weekend'] = 1 if posting_day in [5, 6] else 0
     
-    # Current month (or could be from input)
-    features['posting_month'] = datetime.now().month
-    
-    # Derived temporal features
-    features['is_peak_hour'] = 1 if features['posting_hour'] in [18, 19, 20] else 0
-    features['is_weekend'] = 1 if features['posting_day'] in [5, 6] else 0
-    features['is_evening'] = 1 if features['posting_hour'] >= 18 else 0
-
-    # 3. CONTENT FEATURES
-    features['caption_length'] = len(caption)
-    features['hashtag_count'] = len(hashtags)
     features['duration_sec'] = int(duration_sec)
+    features['has_emoji'] = 1 if _detect_emoji(caption) else 0
+    features['has_call_to_action'] = 1 if _detect_cta(caption) else 0
     
-    # Derived content features
-    features['optimal_hashtag_range'] = 1 if 5 <= features['hashtag_count'] <= 10 else 0
-    features['has_optimal_caption'] = 1 if 100 <= features['caption_length'] <= 300 else 0
-    features['has_short_caption'] = 1 if features['caption_length'] < 100 else 0
-    features['has_long_caption'] = 1 if features['caption_length'] > 300 else 0
-    
-
-    # 4. PLATFORM FEATURES (one-hot)
+    # ══════════════════════════════════════════════════════════════════════════
+    # 2. PLATFORM ONE-HOT (features 7-8) - instagram is reference category
+    # ══════════════════════════════════════════════════════════════════════════
     platform_clean = platform.replace(' ', '').lower()
     if 'youtube' in platform_clean:
         platform_clean = 'youtube'
@@ -249,14 +340,59 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
         platform_clean = 'tiktok'
     
     features['platform_tiktok'] = 1 if platform_clean == 'tiktok' else 0
-    features['platform_instagram'] = 1 if platform_clean == 'instagram' else 0
     features['platform_youtube'] = 1 if platform_clean == 'youtube' else 0
     
-    # 5. CATEGORY FEATURE
-    features['category_encoded'] = CATEGORY_MAPPING.get(category, 13)  # Default: general
-
+    # ══════════════════════════════════════════════════════════════════════════
+    # 3. CATEGORY ONE-HOT (features 9-27) - 19 categories alphabetically
+    # ══════════════════════════════════════════════════════════════════════════
+    for cat in VALID_CATEGORIES:
+        features[f'category_{cat}'] = 1 if category == cat else 0
+    
+    # ══════════════════════════════════════════════════════════════════════════
+    # 4. TREND LABEL ONE-HOT (features 28-31)
+    # ══════════════════════════════════════════════════════════════════════════
+    trend_lower = trend_type.lower() if trend_type else None
+    for trend in VALID_TREND_TYPES:
+        features[f'trend_label_{trend}'] = 1 if trend_lower == trend else 0
+    
+    # ══════════════════════════════════════════════════════════════════════════
+    # 5. SEASON ONE-HOT (features 32-35)
+    # ══════════════════════════════════════════════════════════════════════════
+    current_season = _get_season(month)
+    for season in VALID_SEASONS:
+        features[f'season_{season}'] = 1 if current_season == season else 0
+    
+    # ══════════════════════════════════════════════════════════════════════════
+    # 6. ENCODED FEATURES (features 36-39)
+    # ══════════════════════════════════════════════════════════════════════════
+    # media_type_nan: 1 if no media type info, 0 if known
+    features['media_type_nan'] = 0 if has_media else 1
+    
+    # posting_day_encoded: LabelEncoder (alphabetical)
+    if isinstance(posting_day, str):
+        day_lower = posting_day.lower()
+        features['posting_day_encoded'] = DAY_LABEL_ENCODER.get(day_lower, 2)  # Default: Saturday=2
+    else:
+        # Convert numeric day (0=Mon,...,6=Sun) to label encoded value
+        day_names = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        day_name = day_names[posting_day % 7]
+        features['posting_day_encoded'] = DAY_LABEL_ENCODER.get(day_name, 2)
+    
+    # caption_bin_encoded: LabelEncoder on binned caption lengths
+    caption_bin = _get_caption_bin(features['caption_length'])
+    features['caption_bin_encoded'] = CAPTION_BIN_ENCODER.get(caption_bin, 0)
+    
+    # posting_hour_bin_encoded: LabelEncoder on time-of-day bins
+    hour_bin = _get_hour_bin(features['posting_hour'])
+    features['posting_hour_bin_encoded'] = HOUR_BIN_ENCODER.get(hour_bin, 0)
+    
+    # ══════════════════════════════════════════════════════════════════════════
     # CREATE DATAFRAME WITH FEATURES IN CORRECT ORDER
-    df = pd.DataFrame([features], columns=REQUIRED_FEATURES)
+    # ══════════════════════════════════════════════════════════════════════════
+    df = pd.DataFrame([features])
+    
+    # Ensure columns are in the exact order expected by the model
+    df = df[REQUIRED_FEATURES]
     
     # Ensure all numeric types
     df = df.astype(float)
@@ -268,49 +404,69 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
 # Takes raw input data, prepares features, and returns prediction results
 
 def predict_engagement(input_data: Dict[str, Any]) -> Dict[str, Any]:
- 
+    """
+    Predict engagement rate for content using the Random Forest model.
+    
+    Args:
+        input_data: Dictionary containing content parameters (caption, platform, etc.)
+    
+    Returns:
+        Dictionary with prediction results including probability, score, confidence
+    """
     try:
         # Load model (cached)
         model = load_model()
         
-        # Prepare features
+        # Prepare features (generates exactly 39 features in correct order)
         features_df = prepare_features(input_data)
         
-        # Make predictions
-        probability = model.predict_proba(features_df)[0, 1]  # Probability of class 1 (High)
-        binary_pred = model.predict(features_df)[0]  # 0 or 1
+        # Random Forest regression prediction
+        # Model outputs engagement rate directly (trained on engagement_rate 0-1)
+        raw_pred = float(model.predict(features_df)[0])
         
-        # Calculate confidence level
-        if probability > 0.75 or probability < 0.25:
+        # Clamp to reasonable display range
+        d_min = _OUTPUT_SCALING['display_min']
+        d_max = _OUTPUT_SCALING['display_max']
+        probability = np.clip(raw_pred, d_min, d_max)
+        
+        # Binary prediction (high vs low engagement)
+        # Dataset mean is ~7.5%, so above 8% is considered "High"
+        binary_pred = 1 if probability >= 0.08 else 0
+        
+        # Confidence level based on how far from average threshold
+        if probability > 0.12 or probability < 0.04:
             confidence = 'High'
-        elif probability > 0.55 or probability < 0.45:
+        elif probability > 0.10 or probability < 0.06:
             confidence = 'Medium'
         else:
             confidence = 'Low'
         
         # Load config for version info
         config = load_model_config()
-        model_version = config.get('model_info', {}).get('name', 'Logistic Regression v1.0')
+        model_version = config.get('model_info', {}).get('name', 'Random Forest v1.0')
         
         # Format result
         result = {
             'probability': float(probability),
-            'score': int(probability * 100),
+            'score': int(probability * 100),  # Convert to percentage (0-100)
+            'raw_prediction': float(raw_pred),  # Unclamped model output
             'prediction': 'High' if binary_pred == 1 else 'Low',
             'confidence': confidence,
             'features_used': len(REQUIRED_FEATURES),
             'model_version': model_version,
-            'features_df': features_df  # Include for debugging/SHAP
+            'features_df': features_df  # Include for SHAP explanations
         }
         
         return result
         
     except Exception as e:
         print(f" Prediction error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {
             'error': str(e),
-            'probability': 0.5,
-            'score': 50,
+            'probability': 0.05,
+            'score': 5,
             'prediction': 'Unknown',
             'confidence': 'Low',
             'features_used': 0,
@@ -320,8 +476,14 @@ def predict_engagement(input_data: Dict[str, Any]) -> Dict[str, Any]:
 
 # HELPER FUNCTIONS
 
-def get_category_mapping() -> Dict[str, int]:
-    return CATEGORY_MAPPING.copy()
+def get_valid_categories() -> list:
+    """Return list of valid content categories."""
+    return VALID_CATEGORIES.copy()
+
+
+def get_category_aliases() -> Dict[str, str]:
+    """Return category alias mapping for user-facing conversions."""
+    return CATEGORY_ALIASES.copy()
 
 
 def get_valid_platforms() -> list:
@@ -331,7 +493,12 @@ def get_valid_platforms() -> list:
 def get_valid_trend_types() -> list:
     return VALID_TREND_TYPES.copy()
 
-# checks user inpyt before it reaches the model 
+
+def get_valid_seasons() -> list:
+    return VALID_SEASONS.copy()
+
+
+# checks user input before it reaches the model 
 def validate_input(input_data: Dict[str, Any]) -> tuple[bool, str]:
 
     # Check required fields
@@ -352,26 +519,49 @@ def validate_input(input_data: Dict[str, Any]) -> tuple[bool, str]:
     # Validate duration if provided
     if 'duration_sec' in input_data:
         duration = input_data['duration_sec']
-        if duration < 0 or duration > 300:
-            return False, f"Invalid duration_sec: {duration}. Must be 0-300"
+        if duration < 0 or duration > 3600:
+            return False, f"Invalid duration_sec: {duration}. Must be 0-3600"
     
-    # Validate hashtags if provided
-    if 'hashtags' in input_data:
-        if not isinstance(input_data['hashtags'], list):
-            return False, "hashtags must be a list"
+    # Validate category if provided
+    if 'category' in input_data:
+        category = input_data['category'].lower()
+        # Check if it's a valid category or has an alias
+        if category not in VALID_CATEGORIES and category not in CATEGORY_ALIASES:
+            return False, f"Unknown category: {category}. Valid categories: {VALID_CATEGORIES}"
     
     # All validations passed
     return True, ""
+
 
 if __name__ == "__main__":
     print("=" * 70)
     print("MODEL LOADER UTILITY - Creator Compass")
     print("=" * 70)
     print(f"\nModel Path: {MODEL_PATH}")
-    print(f"SHAP Path: {SHAP_PATH}")
+    print(f"Metadata Path: {METADATA_PATH}")
     print(f"Config Path: {CONFIG_PATH}")
     print(f"\nRequired Features: {len(REQUIRED_FEATURES)}")
-    print(f"Valid Platforms: {VALID_PLATFORMS}")
+    print(f"Feature list: {REQUIRED_FEATURES}")
+    print(f"\nValid Platforms: {VALID_PLATFORMS}")
+    print(f"Valid Categories: {len(VALID_CATEGORIES)}")
     print(f"Valid Trend Types: {VALID_TREND_TYPES}")
-    print(f"Categories: {len(CATEGORY_MAPPING)}")
+    print(f"Valid Seasons: {VALID_SEASONS}")
+    
+    # Test prediction
+    print("\n" + "-" * 70)
+    print("Testing prediction...")
+    test_input = {
+        'caption': 'Check out this amazing fitness tip! 💪 Follow for more! #fitness',
+        'platform': 'tiktok',
+        'posting_hour': 19,
+        'posting_day': 'saturday',
+        'duration_sec': 45,
+        'trend_type': 'rising',
+        'category': 'fitness'
+    }
+    result = predict_engagement(test_input)
+    print(f"Test prediction result: {result['score']}% ({result['prediction']})")
+    print(f"Features used: {result['features_used']}")
+    print(f"Model version: {result['model_version']}")
+    
     print("\n" + "=" * 70)
