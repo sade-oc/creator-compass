@@ -8,7 +8,14 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from data.fetch_twitter_apify import fetch_twitter_trends, fetch_tweets_for_trend
 from pipelines.nlp_processor import process_trend_nlp
-st.title("Trend Discovery")
+
+# Authentication
+from auth.authenticator import require_auth, render_auth_sidebar
+render_auth_sidebar()
+if not require_auth():
+    st.stop()
+
+st.title("📈 Trend Discovery")
 
 # Sidebar - Stage 1: Quick Preview
 st.sidebar.header("Stage 1: Browse Trends")

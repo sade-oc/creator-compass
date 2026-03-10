@@ -9,6 +9,12 @@ from typing import Literal
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 from pipelines.content_ideation import generate_content_ideas, generate_detailed_script
 
+# Authentication
+from auth.authenticator import require_auth, render_auth_sidebar
+render_auth_sidebar()
+if not require_auth():
+    st.stop()
+
 Platform = Literal["TikTok", "Instagram Reels", "YouTube Shorts"]
 
 st.title("🎬 AI Content Ideation")

@@ -1,10 +1,14 @@
 streamlit
 pandas
+numpy
 pytest
 scikit-learn
+joblib
 shap
 lime
 requests
 apify-client
 python-dotenv
 openai
+bcrypt
+plotly

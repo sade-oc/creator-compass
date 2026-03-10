@@ -8,6 +8,12 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
+# Authentication
+from auth.authenticator import require_auth, render_auth_sidebar
+render_auth_sidebar()
+if not require_auth():
+    st.stop()
+
 # Import model loader utilities
 from utils.model_loader import (
     predict_engagement,
