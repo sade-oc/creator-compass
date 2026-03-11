@@ -4,10 +4,43 @@ from pathlib import Path
 from typing import Optional
 import pandas as pd
 import json
+import streamlit as st
 
 EXAMPLES_PATH  = Path("data/examples/trends.csv")
 TRENDS_JSON_PATH = Path("data/examples/trends.json")
 EXPECTED_COLUMNS = [ "topic", "score", "source", "discovered_at", "region", "niche"]   
+
+
+def render_sidebar():
+    
+    #Render consistent sidebar across all pages.
+    #Shows user info, mini stats, and logout button.
+  
+    # Import here to avoid circular imports
+    from auth.authenticator import is_authenticated, get_current_user, logout_user
+    from database.db_manager import get_user_stats
+    
+    with st.sidebar:
+        if is_authenticated():
+            user = get_current_user()
+            if user:
+                # User info with avatar
+                st.markdown(f"###  {user['username']}")
+                
+                # Mini stats
+                stats = get_user_stats(user['id'])
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Trends", stats['saved_trends'], label_visibility="visible")
+                with col2:
+                    st.metric("Ideas", stats['total_ideas'], label_visibility="visible")
+                
+                st.markdown("---")
+                
+                # Logout button
+                if st.button(" Logout", use_container_width=True):
+                    logout_user()
+                    st.rerun()
 
 
 def load_examples(csv_path: Optional[Path] = None) -> pd.DataFrame:

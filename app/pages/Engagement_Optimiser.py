@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import sys
+import re
 import tempfile
 import subprocess
 from pathlib import Path
@@ -9,10 +10,17 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Authentication
-from auth.authenticator import require_auth, render_auth_sidebar
-render_auth_sidebar()
+from auth.authenticator import require_auth, get_current_user
+from utils.helpers import render_sidebar
+from utils.session_state import SessionKeys, consume_selected_idea
+from database.db_manager import save_prediction
+
 if not require_auth():
     st.stop()
+render_sidebar()
+
+# Get current user for save functionality
+user = get_current_user()
 
 # Import model loader utilities
 from utils.model_loader import (
@@ -28,6 +36,19 @@ from utils.model_loader import (
 
 st.title("📊 Engagement Optimiser")
 st.markdown("Predict engagement potential and get data-driven suggestions to optimise your content.")
+
+# Check for pre-filled data from Content Ideation (consume once)
+prefill_data = {}
+idea = consume_selected_idea()
+if idea:
+    prefill_data = {
+        "caption": f"{idea.get('hook', '')}\n\n{idea.get('description', '')}".strip(),
+        "hashtags": ", ".join(idea.get("hashtags", [])),
+        "platform": idea.get("platform", "TikTok"),
+        "niche": idea.get("niche", "General"),
+        "duration": idea.get("duration", "30-60 sec"),
+    }
+    st.info(f"📝 Pre-filled from idea: **{idea.get('title', 'Untitled')}**")
 
 # Platform-specific styling
 PLATFORM_COLORS = {
@@ -80,6 +101,7 @@ if uploaded_video:
 # Caption
 caption = st.text_area(
     "Caption",
+    value=prefill_data.get("caption", ""),
     height=120,
     placeholder="Write your post caption here...",
     help="The text content of your post. Optimal length is 100-300 characters."
@@ -96,6 +118,7 @@ if caption:
 # Hashtags
 hashtags_raw = st.text_input(
     "Hashtags",
+    value=prefill_data.get("hashtags", ""),
     placeholder="#fitness, #trending, #viral, #fyp, #workout",
     help="Comma-separated hashtags. Optimal range is 5-10 hashtags."
 )
@@ -111,11 +134,37 @@ if hashtags:
 # Two-column layout for selectors
 col1, col2 = st.columns(2)
 
+# Platform options
+platform_options = ["TikTok", "Instagram", "YouTube"]
+platform_prefill = prefill_data.get("platform", "TikTok")
+# Map "Instagram Reels" to "Instagram", "YouTube Shorts" to "YouTube"
+if "Instagram" in platform_prefill:
+    platform_prefill = "Instagram"
+elif "YouTube" in platform_prefill:
+    platform_prefill = "YouTube"
+platform_index = platform_options.index(platform_prefill) if platform_prefill in platform_options else 0
+
+# Category options
+category_options = [
+    "Tech/Gaming", "Fashion/Beauty", "Finance/Crypto", "Health/Fitness",
+    "Food/Cooking", "Travel", "Entertainment/Media", "Business/Marketing",
+    "Lifestyle/Vlogs", "Celebrities/Pop Culture", "Sports",
+    "Politics/News", "Faith/Religion", "General"
+]
+niche_prefill = prefill_data.get("niche", "General")
+# Try to find matching category
+category_index = 13  # Default: General
+for i, cat in enumerate(category_options):
+    if niche_prefill.lower() in cat.lower() or cat.lower() in niche_prefill.lower():
+        category_index = i
+        break
+
 with col1:
     # Platform
     platform = st.selectbox(
         "Platform",
-        ["TikTok", "Instagram", "YouTube"],
+        platform_options,
+        index=platform_index,
         help="Which platform are you posting to?"
     )
 
@@ -123,13 +172,8 @@ with col2:
     # Category / Niche
     category = st.selectbox(
         "Content Category",
-        [
-            "Tech/Gaming", "Fashion/Beauty", "Finance/Crypto", "Health/Fitness",
-            "Food/Cooking", "Travel", "Entertainment/Media", "Business/Marketing",
-            "Lifestyle/Vlogs", "Celebrities/Pop Culture", "Sports",
-            "Politics/News", "Faith/Religion", "General"
-        ],
-        index=13,  # Default: General
+        category_options,
+        index=category_index,
         help="What niche does your content fall into?"
     )
 
@@ -155,11 +199,19 @@ with col4:
     posting_day = st.selectbox(
         "Posting Day",
         ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        index=5,  # Default: Saturday
+        index=5,
         help="Which day of the week will you post?"
     )
 
 # Duration — auto-detected from video, or manual entry if no video uploaded
+# Parse prefill duration (e.g., "30-60 sec" → 45)
+default_duration = 30
+if prefill_data.get("duration"):
+    dur_str = prefill_data["duration"]
+    nums = re.findall(r'\d+', dur_str)
+    if nums:
+        default_duration = int(sum(map(int, nums)) / len(nums))  # Average if range
+
 if detected_duration:
     duration_sec = detected_duration
 else:
@@ -169,7 +221,7 @@ else:
             "Video Duration (seconds)",
             min_value=1,
             max_value=300,
-            value=30,
+            value=default_duration,
             step=5,
             help="Enter your video length manually (1-300s)"
         )
@@ -178,7 +230,7 @@ else:
             "Video Duration (seconds)",
             min_value=1,
             max_value=300,
-            value=30,
+            value=default_duration,
             step=5,
             help="Upload a video to auto-detect, or enter manually (1-300s)"
         )
@@ -187,10 +239,13 @@ else:
 st.subheader("📈 Trend Alignment")
 col6, col7 = st.columns(2)
 
+# Default to trend-aligned if coming from Content Ideation
+is_from_idea = bool(prefill_data)
+
 with col6:
     has_trend = st.checkbox(
         "Content is trend-aligned",
-        value=False,
+        value=is_from_idea,
         help="Is this content based on a current trend?"
     )
 
@@ -237,8 +292,34 @@ if analyse_clicked:
             st.error(f"❌ Prediction failed: {result['error']}")
         else:
             # Store in session state
-            st.session_state['optimiser_input'] = input_data
-            st.session_state['optimiser_result'] = result
+            st.session_state[SessionKeys.OPTIMISER_INPUT] = input_data
+            st.session_state[SessionKeys.OPTIMISER_RESULT] = result
+            
+            # Auto-save prediction
+            score = result['score']
+            # Calculate performance score for saving
+            DATASET_AVERAGE = 7.5
+            DATASET_MIN = 3.0
+            DATASET_MAX = 15.0
+            if score <= DATASET_AVERAGE:
+                perf_score = int((score - DATASET_MIN) / (DATASET_AVERAGE - DATASET_MIN) * 50)
+            else:
+                perf_score = int(50 + (score - DATASET_AVERAGE) / (DATASET_MAX - DATASET_AVERAGE) * 50)
+            perf_score = max(0, min(100, perf_score))
+            
+            save_prediction(
+                user_id=user['id'],
+                caption=caption[:500] if caption else "No caption",
+                platform=platform,
+                category=category,
+                posting_hour=posting_hour,
+                posting_day=posting_day,
+                duration_sec=duration_sec,
+                has_trend=has_trend,
+                trend_type=trend_type if has_trend else None,
+                predicted_engagement=score,
+                performance_score=perf_score
+            )
             
             # --- ENGAGEMENT SCORE ---
             st.markdown("---")
@@ -515,7 +596,7 @@ if analyse_clicked:
                         st.success("🎯 Great job! Your content is already well-optimized.")
                     
                     # Store explanation in session state for optimization suggestions
-                    st.session_state['current_explanation'] = explanation
+                    st.session_state[SessionKeys.CURRENT_EXPLANATION] = explanation
                     
                 else:
                     st.info("💡 SHAP explanations not available. The model prediction is based on your content's features compared to historical data.")
@@ -523,3 +604,19 @@ if analyse_clicked:
             except Exception as e:
                 st.warning(f"⚠️ Could not generate explanation: {str(e)}")
                 st.info("💡 The engagement prediction is still valid - explanations are an optional enhancement.")
+
+# What's Next? section (always visible)
+st.markdown("---")
+st.subheader("🚀 What's Next?")
+st.info("After analysing your content, you can refine your ideas or explore new trends!")
+
+col_next1, col_next2, col_next3 = st.columns(3)
+with col_next1:
+    if st.button("🔥 Discover More Trends", use_container_width=True):
+        st.switch_page("pages/Trend_Discovery.py")
+with col_next2:
+    if st.button("💡 Generate New Ideas", use_container_width=True):
+        st.switch_page("pages/Content_Ideation.py")
+with col_next3:
+    if st.button("🏠 Back to Dashboard", use_container_width=True):
+        st.switch_page("main.py")

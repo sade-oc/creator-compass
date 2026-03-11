@@ -223,6 +223,13 @@ __marimo__/
 data/raw/
 data/processed/
 
+# Model files (too large for Git)
+models/*.joblib
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+
 # IDE folders (already covered but being explicit)
 .vscode/
 .idea/

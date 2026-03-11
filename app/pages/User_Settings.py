@@ -8,12 +8,12 @@ sys.path.insert(0, str(app_dir))
 
 from auth.authenticator import (
     require_auth,
-    render_auth_sidebar,
     get_current_user,
     logout_user,
     hash_password,
     verify_password,
 )
+from utils.helpers import render_sidebar
 from database.db_manager import (
     get_user_by_id,
     update_user,
@@ -33,7 +33,7 @@ st.set_page_config(
 if not require_auth():
     st.stop()
 
-render_auth_sidebar()
+render_sidebar()
 
 # Get current user
 user = get_current_user()

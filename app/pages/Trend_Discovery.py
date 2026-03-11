@@ -10,10 +10,19 @@ from data.fetch_twitter_apify import fetch_twitter_trends, fetch_tweets_for_tren
 from pipelines.nlp_processor import process_trend_nlp
 
 # Authentication
-from auth.authenticator import require_auth, render_auth_sidebar
-render_auth_sidebar()
+from auth.authenticator import require_auth, get_current_user
+from utils.helpers import render_sidebar
+from utils.session_state import SessionKeys, set_selected_trend
+from database.db_manager import save_trend, get_saved_trends
+
 if not require_auth():
     st.stop()
+render_sidebar()
+
+# Get current user for save functionality
+user = get_current_user()
+# Get already saved trends to prevent duplicates
+saved_trend_topics = [t['trend_topic'] for t in get_saved_trends(user['id'])] if user else []
 
 st.title("📈 Trend Discovery")
 
@@ -24,6 +33,7 @@ st.sidebar.header("Stage 1: Browse Trends")
 niche_options = ["All", "Tech/Gaming", "Sports", "Entertainment/Media", 
                  "Politics/News", "Fitness/Wellness", "Beauty/Fashion", 
                  "Food/Cooking", "Travel", "Finance", "General"]
+
 selected_niche = st.sidebar.selectbox("Filter by Niche", niche_options)
 
 # Number of trends to fetch
@@ -46,10 +56,10 @@ if st.sidebar.button("Get Trending Topics", type="primary"):
             )
             
             # Store in session state
-            st.session_state.preview_trends = trends
+            st.session_state[SessionKeys.PREVIEW_TRENDS] = trends
             # Initialise analyzed_trends if it doesn't exist (don't reset existing ones)
-            if "analyzed_trends" not in st.session_state:
-                st.session_state.analyzed_trends = {}
+            if SessionKeys.ANALYZED_TRENDS not in st.session_state:
+                st.session_state[SessionKeys.ANALYZED_TRENDS] = {}
             st.success(f"Loaded {len(trends)} trending topics!")
             
         except Exception as e:
@@ -57,12 +67,12 @@ if st.sidebar.button("Get Trending Topics", type="primary"):
             st.stop()
 
 # Check if we have preview trends
-if "preview_trends" not in st.session_state or not st.session_state.preview_trends:
+if SessionKeys.PREVIEW_TRENDS not in st.session_state or not st.session_state[SessionKeys.PREVIEW_TRENDS]:
     st.info("👆 Click 'Get Trending Topics' to see what's trending!")
     st.stop()
 
 # Filter preview trends by niche
-preview_trends = st.session_state.preview_trends
+preview_trends = st.session_state[SessionKeys.PREVIEW_TRENDS]
 if selected_niche != "All":
     filtered_preview = [t for t in preview_trends if t.get("niche") == selected_niche]
 else:
@@ -113,7 +123,7 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
         st.stop()
     
     with st.spinner(f"Analyzing {len(selected_topics)} trends (fetching tweets + NLP)..."):
-        analyzed = st.session_state.get("analyzed_trends", {})
+        analyzed = st.session_state.get(SessionKeys.ANALYZED_TRENDS, {})
         
         progress_bar = st.progress(0)
         status_text = st.empty()
@@ -151,16 +161,16 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
             
             progress_bar.progress((i + 1) / len(selected_topics))
         
-        st.session_state.analyzed_trends = analyzed
+        st.session_state[SessionKeys.ANALYZED_TRENDS] = analyzed
         status_text.empty()
         st.success(f"Analysis complete for {len(analyzed)} trends!")
 
 # Display analysed trends
-if "analyzed_trends" in st.session_state and st.session_state.analyzed_trends:
+if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionKeys.ANALYZED_TRENDS]:
     st.markdown("---")
     st.subheader("Analysis Results")
     
-    analyzed_trends = st.session_state.analyzed_trends
+    analyzed_trends = st.session_state[SessionKeys.ANALYZED_TRENDS]
     
     # Convert to DataFrame
     df_data = []
@@ -263,3 +273,41 @@ if "analyzed_trends" in st.session_state and st.session_state.analyzed_trends:
                     st.markdown("")
             else:
                 st.text("No tweets available")
+            
+            # Action buttons
+            st.markdown("---")
+            col_act1, col_act2 = st.columns(2)
+            
+            with col_act1:
+                if st.button("🎬 Use for Content Ideas", key=f"use_trend_{row['topic']}", type="primary"):
+                    set_selected_trend(row['topic'])
+                    st.switch_page("pages/Content_Ideation.py")
+            
+            with col_act2:
+                is_saved = row['topic'] in saved_trend_topics
+                if is_saved:
+                    st.success("✅ Saved")
+                else:
+                    if st.button("💾 Save Trend", key=f"save_trend_{row['topic']}"):
+                        save_trend(
+                            user_id=user['id'],
+                            trend_topic=row['topic'],
+                            trend_score=row['score'],
+                            trend_source="twitter",
+                            trend_niche=row['niche']
+                        )
+                        st.success("✅ Trend saved!")
+                        st.rerun()
+    
+    # What's Next? section
+    st.markdown("---")
+    st.subheader("🚀 What's Next?")
+    st.info("Select a trend above and click **'Use for Content Ideas'** to generate AI-powered content ideas!")
+    
+    col_next1, col_next2 = st.columns(2)
+    with col_next1:
+        if st.button("💡 Go to Content Ideation", use_container_width=True):
+            st.switch_page("pages/Content_Ideation.py")
+    with col_next2:
+        if st.button("🏠 Back to Dashboard", use_container_width=True):
+            st.switch_page("main.py")

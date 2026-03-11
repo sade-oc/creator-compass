@@ -22,7 +22,6 @@ from app.database.db_manager import (
 )
 
 
-
 # PASSWORD HASHING
 def hash_password(password: str) -> str:
     # Hash a password using bcrypt.
@@ -162,12 +161,12 @@ def logout_user():
         del st.session_state.user
     if 'authenticated' in st.session_state:
         del st.session_state.authenticated
+    
     # Clear any other session data
     keys_to_clear = ['selected_trend', 'generated_idea', 'last_prediction']
     for key in keys_to_clear:
         if key in st.session_state:
             del st.session_state[key]
-
 
 
 # SESSION MANAGEMENT
