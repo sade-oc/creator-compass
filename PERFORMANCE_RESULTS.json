@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-03-13T16:32:08.515671",
+  "module": "M1 & M2 Pipeline Performance",
+  "total_operations": 4,
+  "passed": 4,
+  "failed": 0,
+  "total_time_seconds": 66.2937,
+  "results": [
+    {
+      "operation": "M1-01: Fetch trending topics",
+      "status": "\u2705 PASS",
+      "time_seconds": 45.2739,
+      "trends_fetched": 10
+    },
+    {
+      "operation": "M1-02: NLP trend categorization",
+      "status": "\u2705 PASS",
+      "time_seconds": 0.0001,
+      "trends_processed": 3,
+      "avg_per_trend": 0.0
+    },
+    {
+      "operation": "M2-01: Generate content ideas",
+      "status": "\u2705 PASS",
+      "time_seconds": 21.0196,
+      "result_keys": [
+        "success",
+        "ideas",
+        "trend_topic",
+        "total_generated",
+        "generation_time"
+      ]
+    },
+    {
+      "operation": "M2-02: Generate detailed script",
+      "status": "\u2705 PASS",
+      "time_seconds": 0.0001,
+      "script_keys": [
+        "success",
+        "error",
+        "script",
+        "generation_time"
+      ]
+    }
+  ],
+  "targets": {
+    "M1_trend_fetching": "< 60s",
+    "M1_nlp_categorization": "< 20s",
+    "M2_idea_generation": "< 15s",
+    "M2_script_generation": "< 30s"
+  }
+}
