@@ -1,0 +1,4 @@
+component,run_1,run_2,run_3,run_4,run_5,mean,std_dev,target,status
+M1_time_seconds,21.0,21.3,18.4,18.9,18.8,19.70,1.35,60.0,PASS
+M2_time_seconds,20.4,17.9,17.5,17.3,16.1,17.83,1.57,15.0,FAIL
+E2E_time_seconds,41.4,39.2,35.9,36.2,34.9,37.53,2.69,90.0,PASS
