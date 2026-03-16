@@ -107,6 +107,7 @@ def categorise_with_gpt(tweets: Optional[list[dict[str, Any]]] = None, topic: st
 - Fitness/Wellness (health, workouts, mental health, wellness)
 - Beauty/Fashion (makeup, style, fashion, clothing, design)
 - Food/Cooking (recipes, restaurants, chefs, cuisine)
+- Finance (stocks, markets, cryptocurrencies, trading, investments, banking, NFTs)
 - General (everything else, greetings, general topics)"""
     
     try:
@@ -141,6 +142,7 @@ Examples:
 - "#SuperBowl" → Sports
 - "ChatGPT" → Tech/Gaming
 - "Biden" → Politics/News
+- "Bitcoin" → Finance
 - "#MondayMotivation" → General
 
 Return ONLY the category name, nothing else."""
