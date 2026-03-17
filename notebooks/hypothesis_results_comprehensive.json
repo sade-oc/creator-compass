@@ -1,0 +1,52 @@
+[
+  {
+    "Hypothesis": "H1: Trending topics increase engagement",
+    "Test Type": "Independent t-test",
+    "Trending Mean": "0.0228",
+    "Non-Trending Mean": "0.0011",
+    "T-Statistic": "141.5326",
+    "P-Value": "0.000000",
+    "Cohen's d": "1.0130",
+    "Significant (\u03b1=0.05)": "Yes",
+    "Interpretation": "Trending posts have significantly higher engagement"
+  },
+  {
+    "Hypothesis": "H2: Platform affects engagement differently",
+    "Test Type": "One-way ANOVA",
+    "Number of Platforms": 3,
+    "F-Statistic": "7739.8793",
+    "P-Value": "0.000000",
+    "Significant (\u03b1=0.05)": "Yes",
+    "Interpretation": "Different platforms have significantly different engagement"
+  },
+  {
+    "Hypothesis": "H3: More hashtags increase engagement",
+    "Test Type": "Pearson Correlation",
+    "Sample Size": 78077,
+    "Mean Hashtag Count": "3.68",
+    "Correlation Coefficient (r)": "-0.3291",
+    "P-Value": "0.000000",
+    "Significant (\u03b1=0.05)": "Yes",
+    "Interpretation": "Significant negative correlation"
+  },
+  {
+    "Hypothesis": "H4: Longer captions increase engagement",
+    "Test Type": "Pearson Correlation",
+    "Sample Size": 78077,
+    "Mean Caption Length": "60.2 chars",
+    "Correlation Coefficient (r)": "-0.3648",
+    "P-Value": "0.000000",
+    "Significant (\u03b1=0.05)": "Yes",
+    "Interpretation": "Significant negative correlation"
+  },
+  {
+    "Hypothesis": "H5: Posting hour affects engagement",
+    "Test Type": "One-way ANOVA",
+    "Number of Hours Analyzed": 24,
+    "F-Statistic": "61.9077",
+    "P-Value": "0.000000",
+    "Significant (\u03b1=0.05)": "Yes",
+    "Optimal Posting Hour": "20:00",
+    "Interpretation": "Posting hour significantly affects engagement"
+  }
+]
