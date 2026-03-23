@@ -1,3 +1,14 @@
+"""
+Creator Compass Main Dashboard
+
+Entry point for the Streamlit application. Provides authenticated users with:
+- Personal dashboard showing stats (trends, ideas, predictions)
+- Navigation to Trend Discovery, Content Ideation, Engagement Optimiser, User Settings
+- Management of saved trends, ideas, and prediction history
+
+Unauthenticated users see login/signup forms.
+"""
+
 import streamlit as st
 from utils.helpers import load_examples, render_sidebar
 from auth.authenticator import (
@@ -16,9 +27,10 @@ from database.db_manager import (
     delete_saved_idea,
 )
 
-# Initialize database
+# Initialise database
 init_db()
 
+# Configure Streamlit page layout and metadata
 st.set_page_config(
     page_title="Creator Compass",
     page_icon="🧭",
@@ -34,6 +46,7 @@ st.title("🧭 Creator Compass")
 st.subheader("AI-powered micro-content coaching platform")
 
 if is_authenticated():
+    # Load user data and render dashboard with stats, navigation, and saved items
     user = get_current_user()
     if user:
         stats = get_user_stats(user['id'])
@@ -132,7 +145,7 @@ if is_authenticated():
             st.info("No predictions yet. Go to Engagement Optimiser to analyse your content!")
 
 else:
-    # Not logged in - show centered login/signup
+    # Display login/signup forms for unauthenticated users
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:

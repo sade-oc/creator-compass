@@ -1,3 +1,16 @@
+"""
+Content Ideation Page
+
+Generates AI-powered video content ideas from trending topics:
+1. Select a trend from analysed trends (from Trend Discovery)
+2. Choose target platform (TikTok, Instagram Reels, YouTube Shorts)
+3. Generate multiple creative idea variations using GPT-4o-mini
+4. View detailed ideas with hooks, angles, shots, captions, hashtags
+5. Optionally generate full video scripts or test engagement predictions
+
+Ideas can be saved or sent directly to Engagement Optimiser.
+"""
+
 import streamlit as st
 import pandas as pd
 import os
@@ -122,6 +135,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
         st.subheader(f"💡 Content Ideas for: {st.session_state[SessionKeys.CURRENT_TREND_TOPIC]}")
         st.caption(f"Platform: {st.session_state[SessionKeys.CURRENT_PLATFORM]}")
     
+    # Allow user to regenerate new ideas with same trend/platform parameters
     with col_header2:
         if st.button("🔄 Regenerate Ideas", help="Generate new ideas for the same trend"):
             trend = analyzed_trends[st.session_state[SessionKeys.CURRENT_TREND_TOPIC]]
@@ -164,6 +178,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
     
+    # Display each idea in expandable card with full details, script generation, and action buttons
     for idx, idea in enumerate(st.session_state[SessionKeys.GENERATED_IDEAS], 1):
         # Engagement emoji
         engagement_emoji = {

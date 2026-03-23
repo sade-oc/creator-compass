@@ -1,3 +1,14 @@
+"""
+Trend Discovery Page
+
+Two-stage workflow to discover and analyze trending topics:
+1. Fetch trending topics from Twitter/X via Apify (fast, no tweets)
+2. Deep analyze selected trends: fetch tweets, extract keywords/sentiment/hashtags via NLP
+3. Display results with option to save trends or create content ideas
+
+Users can filter by niche and control number of trends analyzed.
+"""
+
 import streamlit as st
 import pandas as pd
 import os
@@ -122,6 +133,7 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
         st.error("APIFY_API_TOKEN not found. Set it in your .env file.")
         st.stop()
     
+    # Fetch tweets and perform NLP analysis for each selected trend
     with st.spinner(f"Analyzing {len(selected_topics)} trends (fetching tweets + NLP)..."):
         analyzed = st.session_state.get(SessionKeys.ANALYZED_TRENDS, {})
         
@@ -217,6 +229,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
     st.dataframe(df[show_cols], use_container_width=True, hide_index=True)
     
     # Detailed expanders
+    # Expandable sections for each trend showing keywords, sentiment, hashtags, tweets, and action buttons
     st.markdown("---")
     st.subheader("Detailed Analysis")
     

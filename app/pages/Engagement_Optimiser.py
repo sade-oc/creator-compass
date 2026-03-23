@@ -1,3 +1,11 @@
+"""
+Engagement Optimiser Page
+
+Predict engagement scores for user-provided or AI-generated content ideas.
+Displays SHAP-based explanations showing which content features drive engagement.
+Allows users to optimize content and save predictions to their profile.
+"""
+
 import streamlit as st
 import pandas as pd
 import sys
