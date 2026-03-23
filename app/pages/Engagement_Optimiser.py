@@ -511,6 +511,14 @@ if analyse_clicked:
                         # Baseline info
                         st.caption(f"📍 Baseline engagement: {explanation['baseline']*100:.2f}% (average across all content)")
                     
+                    # Model Limitations & Fairness Disclaimer
+                    with st.expander("ℹ️ About These Predictions (Model Limitations & Fairness)", expanded=False):
+                        limitations = explainer.get_model_limitations()
+                        st.warning(limitations['performance_caveat'])
+                        st.info(limitations['data_bias_note'])
+                        st.info(limitations['fairness_consideration'])
+                        st.error(limitations['what_we_cant_predict'])
+                    
                     # --- OPTIMIZATION SUGGESTIONS ---
                     st.markdown("---")
                     st.subheader("💡 Optimization Suggestions")

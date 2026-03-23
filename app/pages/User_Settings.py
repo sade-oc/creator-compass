@@ -45,11 +45,12 @@ st.markdown("Manage your profile, preferences, and account settings.")
 st.markdown("---")
 
 # Create tabs for different settings sections
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "👤 Profile", 
     "🔒 Password", 
     "🎯 Preferences", 
-    "⚠️ Account"
+    "⚠️ Account",
+    "📋 Privacy & Terms"
 ])
 
 
@@ -295,3 +296,84 @@ with tab4:
                     st.rerun()
                 else:
                     st.error("Username doesn't match. Please try again.")
+
+
+# TAB 5: PRIVACY POLICY & TERMS
+with tab5:
+    st.subheader("Privacy Policy & Terms of Service")
+    
+    privacy_terms = st.tabs(["Privacy Policy", "Terms of Service", "Data Rights"])
+    
+    with privacy_terms[0]:  # Privacy Policy
+        st.markdown("""
+        ## About This App
+        
+        Creator Compass is a proof-of-concept project built for a BSc Computer Science final project. 
+        It's not a commercial product, so here's how your data actually works:
+        
+        ### What Gets Stored
+        - Your login: username, email, hashed password
+        - Your settings: platforms you like, content categories, posting times
+        - Your work: trends you save, ideas you generate, engagement predictions
+        
+        ### Where It Goes
+        - **Local Storage:** Everything stays in a local SQLite database
+        - **Apify API:** When you search trends, that goes to Apify (just the search query)
+        - **OpenAI API:** When you generate ideas, Apify sends your trend + preferences to OpenAI
+        - **Nowhere else:** Your data is never sold, shared with ads, or used for anything else
+        
+        ### Security
+        - Passwords are hashed (can't be reversed)
+        - Only you can access your account
+        - No tracking cookies or analytics
+        
+        ### Deleting Your Data
+        You can delete your account anytime (Account tab). Everything gets removed immediately.
+        """)
+    
+    with privacy_terms[1]:  # Terms of Service
+        st.markdown("""
+        ## How to Use This App
+        
+        ### What You Get
+        - Trend discovery from social media
+        - AI-generated content ideas (powered by OpenAI)
+        - Engagement predictions based on historical data
+        
+        ### What to Know
+        ⚠️ **Predictions are guesses**, not guarantees  
+        ⚠️ **Generated ideas are suggestions**, not guaranteed viral content  
+        ⚠️ You're responsible for checking if content breaks platform rules  
+        ⚠️ Don't use this to create spam, fake, or malicious content
+        
+        ### Your Content
+        - Everything you create in this app is yours
+        - You can use it anywhere you want
+        - You own all rights to your ideas
+        
+        ### What You Can't Do
+        - Copy or reverse-engineer the code
+        - Use it commercially without credit
+        - Use it to spam or break platform rules
+        """)
+    
+    with privacy_terms[2]:  # Data Rights
+        st.markdown("""
+        ## Your Rights
+        
+        **You can:**
+        - Access all your data anytime
+        - Update your profile info
+        - Delete your account (permanent)
+        - Download your data if needed
+        
+        **We don't:**
+        - Sell or share your data
+        - Track you with cookies
+        - Use your content without permission
+        - Keep deleted data (removed within 7 days)
+        
+        This app follows UK GDPR rules for data protection.
+        """)
+
+

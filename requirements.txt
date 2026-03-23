@@ -12,3 +12,6 @@ python-dotenv
 openai
 bcrypt
 plotly
+textblob
+nltk
+matplotlib

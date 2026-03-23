@@ -78,6 +78,36 @@ class EngagementExplainer:
             },
         }
     
+    def get_model_limitations(self) -> Dict[str, str]:
+        """
+        Get model limitations and fairness disclaimers for the user.
+        
+        Returns:
+            Dict with bias warning and fairness notes
+        """
+        return {
+            'performance_caveat': (
+                '⚠️ **Model Accuracy:** Predictions are estimates based on historical data. '
+                'Actual engagement may vary significantly. The model explains ~41% of engagement variance (R²=0.4143). '
+                'Many external factors (algorithm changes, viral trends, influencer status) are not captured in this model.'
+            ),
+            'data_bias_note': (
+                '📊 **Data Bias:** Training data comes from TikTok, Instagram, and YouTube content across 11 niches. '
+                'The model performs better for some content categories than others. Popular niches may have more training data, '
+                'leading to slightly better predictions for those categories. Smaller niches have higher prediction uncertainty.'
+            ),
+            'fairness_consideration': (
+                '⚖️ **Fairness:** This model predicts engagement based on past content patterns. It is NOT designed to determine '
+                'content quality, virality potential, or creator talent. Low predictions don\'t mean your content is bad—just that it may need '
+                'different optimisation strategies based on your specific audience and niche.'
+            ),
+            'what_we_cant_predict': (
+                '❌ **What This Model Cannot Predict:** Viral moments, celebrity takeovers, trending challenges, algorithm preference shifts, '
+                'user sentiment, or qualitative content appeal. Use these predictions as guidance, not guarantees.'
+            )
+        }
+    
+    
     def _init_shap_explainer(self):
         """Initialize SHAP TreeExplainer for the model."""
         try:

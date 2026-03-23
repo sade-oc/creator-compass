@@ -267,8 +267,8 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
                     text = tweet.get("text", "")[:200]
                     likes = tweet.get("likes", 0)
                     retweets = tweet.get("retweets", 0)
-                    author = tweet.get("author", "Unknown")
-                    st.markdown(f"**{i}.** @{author} - ❤️ {likes} | 🔁 {retweets}")
+                    # Mask author username for privacy
+                    st.markdown(f"**{i}.** @Anonymous User - ❤️ {likes} | 🔁 {retweets}")
                     st.text(text)
                     st.markdown("")
             else:
