@@ -1,0 +1,10 @@
+Metric,Value,Interpretation
+Test R²,0.4143,Explains 41.43% of variance in test set
+Cross-Validation Mean R²,0.4124,Stable cross-validation performance
+CV Std Dev,±0.0090,Low variance across folds - robust model
+Test RMSE,0.0232,±2.32% average prediction error
+Test MAE,0.0181,±1.81% median absolute error
+Training Samples,"62,462",80% of data used for training
+Test Samples,"15,615",20% of data held for evaluation
+Total Features,39,After feature engineering & multicollinearity removal
+Model Type,Random Forest Regressor,Non-linear ensemble model

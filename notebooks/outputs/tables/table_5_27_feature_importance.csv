@@ -1,0 +1,16 @@
+Rank,Feature,Importance,Percentage,What It Drives
+1,platform_tiktok,0.2487,24.87%,✅ TikTok posts receive higher engagement
+2,platform_youtube,0.1954,19.54%,✅ YouTube posts highly predictive
+3,duration_sec,0.1069,10.69%,Longer videos drive engagement
+4,caption_length,0.0768,7.68%,Captions affect engagement impact
+5,posting_hour,0.0721,7.21%,Timing significantly matters
+6,posting_day_encoded,0.0396,3.96%,Specific days perform better
+7,has_emoji,0.0160,1.60%,Emojis boost engagement
+8,season_summer,0.0114,1.14%,Summer seasonality effect
+9,trend_label_declining,0.0113,1.13%,Declining trends reduce engagement
+10,season_spring,0.0113,1.13%,Spring seasonality effect
+11,posting_hour_bin_encoded,0.0113,1.13%,Predictive feature
+12,trend_label_rising,0.0110,1.10%,Predictive feature
+13,season_winter,0.0110,1.10%,Predictive feature
+14,trend_label_seasonal,0.0109,1.09%,Predictive feature
+15,season_fall,0.0107,1.07%,Predictive feature
