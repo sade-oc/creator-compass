@@ -45,18 +45,8 @@ from utils.model_loader import (
 st.title("📊 Engagement Optimiser")
 st.markdown("Predict engagement potential and get data-driven suggestions to optimise your content.")
 
-# Check for pre-filled data from Content Ideation (consume once)
-prefill_data = {}
-idea = consume_selected_idea()
-if idea:
-    prefill_data = {
-        "caption": f"{idea.get('hook', '')}\n\n{idea.get('description', '')}".strip(),
-        "hashtags": ", ".join(idea.get("hashtags", [])),
-        "platform": idea.get("platform", "TikTok"),
-        "niche": idea.get("niche", "General"),
-        "duration": idea.get("duration", "30-60 sec"),
-    }
-    st.info(f"📝 Pre-filled from idea: **{idea.get('title', 'Untitled')}**")
+# Clear any pre-filled idea data (view-only mode now)
+consume_selected_idea()
 
 # Platform-specific styling
 PLATFORM_COLORS = {
@@ -109,9 +99,10 @@ if uploaded_video:
 # Caption
 caption = st.text_area(
     "Caption",
-    value=prefill_data.get("caption", ""),
+    value=st.session_state.get("caption_input", ""),
     height=120,
     placeholder="Write your post caption here...",
+    key="caption_input",
     help="The text content of your post. Optimal length is 100-300 characters."
 )
 if caption:
@@ -126,8 +117,9 @@ if caption:
 # Hashtags
 hashtags_raw = st.text_input(
     "Hashtags",
-    value=prefill_data.get("hashtags", ""),
+    value=st.session_state.get("hashtags_input", ""),
     placeholder="#fitness, #trending, #viral, #fyp, #workout",
+    key="hashtags_input",
     help="Comma-separated hashtags. Optimal range is 5-10 hashtags."
 )
 # Parse hashtags into list
@@ -144,7 +136,7 @@ col1, col2 = st.columns(2)
 
 # Platform options
 platform_options = ["TikTok", "Instagram", "YouTube"]
-platform_prefill = prefill_data.get("platform", "TikTok")
+platform_prefill = st.session_state.get('platform_input', "TikTok")
 # Map "Instagram Reels" to "Instagram", "YouTube Shorts" to "YouTube"
 if "Instagram" in platform_prefill:
     platform_prefill = "Instagram"
@@ -159,7 +151,7 @@ category_options = [
     "Lifestyle/Vlogs", "Celebrities/Pop Culture", "Sports",
     "Politics/News", "Faith/Religion", "General"
 ]
-niche_prefill = prefill_data.get("niche", "General")
+niche_prefill = st.session_state.get('category_input', "General")
 # Try to find matching category
 category_index = 13  # Default: General
 for i, cat in enumerate(category_options):
@@ -212,13 +204,7 @@ with col4:
     )
 
 # Duration — auto-detected from video, or manual entry if no video uploaded
-# Parse prefill duration (e.g., "30-60 sec" → 45)
-default_duration = 30
-if prefill_data.get("duration"):
-    dur_str = prefill_data["duration"]
-    nums = re.findall(r'\d+', dur_str)
-    if nums:
-        default_duration = int(sum(map(int, nums)) / len(nums))  # Average if range
+default_duration = st.session_state.get('duration_input', 30)
 
 if detected_duration:
     duration_sec = detected_duration
@@ -247,13 +233,10 @@ else:
 st.subheader("📈 Trend Alignment")
 col6, col7 = st.columns(2)
 
-# Default to trend-aligned if coming from Content Ideation
-is_from_idea = bool(prefill_data)
-
 with col6:
     has_trend = st.checkbox(
         "Content is trend-aligned",
-        value=is_from_idea,
+        value=st.session_state.get('has_trend_input', False),
         help="Is this content based on a current trend?"
     )
 

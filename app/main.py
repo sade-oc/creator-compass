@@ -41,11 +41,10 @@ st.set_page_config(
 # Render sidebar with user info (only when logged in)
 render_sidebar()
 
-# Main content
-st.title("🧭 Creator Compass")
-st.subheader("AI-powered micro-content coaching platform")
-
 if is_authenticated():
+    # Main content for authenticated users
+    st.title("🧭 Creator Compass")
+    st.subheader("AI-powered micro-content coaching platform")
     # Load user data and render dashboard with stats, navigation, and saved items
     user = get_current_user()
     if user:
@@ -100,14 +99,34 @@ if is_authenticated():
     with tab_trends:
         if saved_trends:
             for trend in saved_trends:
-                col_info, col_action = st.columns([4, 1])
+                col_info, col_view, col_action = st.columns([3, 1, 1])
                 with col_info:
                     st.markdown(f"**{trend['trend_topic']}**")
                     st.caption(f"Score: {trend['trend_score']} | Niche: {trend['trend_niche']} | Saved: {trend['saved_at'][:10]}")
+                with col_view:
+                    if st.button("👁️ View", key=f"view_trend_{trend['id']}", help="View full trend", use_container_width=True):
+                        st.session_state[f"expand_trend_{trend['id']}"] = True
                 with col_action:
-                    if st.button("🗑️", key=f"del_trend_{trend['id']}", help="Delete"):
+                    if st.button("🗑️", key=f"del_trend_{trend['id']}", help="Delete", use_container_width=True):
                         delete_saved_trend(trend['id'], user['id'])
                         st.rerun()
+                
+                # Expandable trend details
+                if st.session_state.get(f"expand_trend_{trend['id']}", False):
+                    with st.expander(f"📊 Trend Details: {trend['trend_topic']}", expanded=True):
+                        col_d1, col_d2 = st.columns(2)
+                        with col_d1:
+                            st.metric("Trend Score", trend['trend_score'])
+                            st.metric("Niche", trend['trend_niche'])
+                        with col_d2:
+                            st.metric("Analysis Date", trend['saved_at'][:10])
+                            st.metric("Keywords", len(trend.get('keywords', []) or []))
+                        if trend.get('trend_description'):
+                            st.markdown("**Trend Description:**")
+                            st.write(trend['trend_description'])
+                        if trend.get('keywords'):
+                            st.markdown("**Top Keywords:**")
+                            st.write(", ".join([kw[0] for kw in trend['keywords'][:10]] if trend['keywords'] else []))
                 st.markdown("---")
         else:
             st.info("No saved trends yet. Go to Trend Discovery to find and save trends!")
@@ -115,14 +134,29 @@ if is_authenticated():
     with tab_ideas:
         if saved_ideas:
             for idea in saved_ideas:
-                col_info, col_action = st.columns([4, 1])
+                col_info, col_view, col_action = st.columns([3, 1, 1])
                 with col_info:
                     st.markdown(f"**{idea['idea_title']}**")
                     st.caption(f"Platform: {idea['platform']} | Category: {idea['category']} | Saved: {idea['created_at'][:10]}")
+                with col_view:
+                    if st.button("👁️ View", key=f"view_idea_{idea['id']}", help="View full idea", use_container_width=True):
+                        st.session_state[f"expand_idea_{idea['id']}"] = True
                 with col_action:
-                    if st.button("🗑️", key=f"del_idea_{idea['id']}", help="Delete"):
+                    if st.button("🗑️", key=f"del_idea_{idea['id']}", help="Delete", use_container_width=True):
                         delete_saved_idea(idea['id'], user['id'])
                         st.rerun()
+                
+                # Expandable idea details
+                if st.session_state.get(f"expand_idea_{idea['id']}", False):
+                    with st.expander(f"💡 Idea Details: {idea['idea_title']}", expanded=True):
+                        col_i1, col_i2 = st.columns(2)
+                        with col_i1:
+                            st.metric("Platform", idea['platform'])
+                            st.metric("Category", idea['category'])
+                        with col_i2:
+                            st.metric("Created", idea['created_at'][:10])
+                        st.markdown("**Description:**")
+                        st.write(idea.get('idea_description', 'No description'))
                 st.markdown("---")
         else:
             st.info("No saved ideas yet. Go to Content Ideation to generate and save ideas!")
@@ -149,6 +183,10 @@ else:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
+        st.title("🧭 Creator Compass")
+        st.subheader("AI-powered micro-content coaching platform")
+        st.markdown("---")
+        
         tab1, tab2 = st.tabs(["Login", "Sign Up"])
         with tab1:
             render_login_form()
