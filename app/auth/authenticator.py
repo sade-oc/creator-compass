@@ -187,8 +187,8 @@ def require_auth() -> bool:
     # Check authentication and show login prompt if not authenticated.
     # Returns True if authenticated, False otherwise.
     if not is_authenticated():
-        st.warning("⚠️ Please log in to access this page.")
-        st.info("👈 Use the login form in the sidebar or go to the Home page.")
+        st.warning("Please log in to access this page.")
+        st.info("Use the login form in the sidebar or go to the Home page.")
         return False
     return True
 
@@ -206,7 +206,7 @@ def render_login_form() -> bool:
     # Render login form in sidebar or main area.
     # Returns True if login successful this render.
     with st.form("login_form"):
-        st.subheader("🔐 Login")
+        st.subheader("Login")
         username = st.text_input("Username or Email")
         password = st.text_input("Password", type="password")
         submit = st.form_submit_button("Login", use_container_width=True)
@@ -229,7 +229,7 @@ def render_signup_form() -> bool:
     # Render signup form.
     # Returns True if signup successful this render.
     with st.form("signup_form"):
-        st.subheader("📝 Create Account")
+        st.subheader("Create Account")
         username = st.text_input("Username")
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
@@ -255,7 +255,7 @@ def render_auth_sidebar():
         if is_authenticated():
             user = get_current_user()
             if user:
-                st.success(f"👤 Logged in as **{user['username']}**")
+                st.success(f"Logged in as **{user['username']}**")
                 if st.button("Logout", use_container_width=True):
                     logout_user()
                     st.rerun()

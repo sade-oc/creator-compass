@@ -42,7 +42,7 @@ from utils.model_loader import (
     REQUIRED_FEATURES,
 )
 
-st.title("📊 Engagement Optimiser")
+st.title("Engagement Optimiser")
 st.markdown("Predict engagement potential and get data-driven suggestions to optimise your content.")
 
 # Clear any pre-filled idea data (view-only mode now)
@@ -56,13 +56,13 @@ PLATFORM_COLORS = {
 }
 
 PLATFORM_ICONS = {
-    'TikTok': '🎵',
-    'Instagram': '📸',
-    'YouTube': '🎬'
+    'TikTok': 'TikTok',
+    'Instagram': 'Instagram',
+    'YouTube': 'YouTube'
 }
 
 # --- INPUT FORM ---
-st.subheader("📝 Content Details")
+st.subheader("Content Details")
 
 # Video upload — duration auto-detected, video itself not analysed by model
 uploaded_video = st.file_uploader(
@@ -90,7 +90,7 @@ if uploaded_video:
         )
         if result.returncode == 0 and result.stdout.strip():
             detected_duration = int(float(result.stdout.strip()))
-            st.caption(f"⏱️ Duration auto-detected: {detected_duration}s")
+            st.caption(f"Duration auto-detected: {detected_duration}s")
         
         Path(tmp_path).unlink(missing_ok=True)
     except Exception:
@@ -108,11 +108,11 @@ caption = st.text_area(
 if caption:
     char_count = len(caption)
     if 100 <= char_count <= 300:
-        st.caption(f"✅ {char_count} characters (optimal range)")
+        st.caption(f"{char_count} characters (optimal range)")
     elif char_count < 100:
-        st.caption(f"⚠️ {char_count} characters (short — aim for 100-300)")
+        st.caption(f"{char_count} characters (short — aim for 100-300)")
     else:
-        st.caption(f"⚠️ {char_count} characters (long — aim for 100-300)")
+        st.caption(f"{char_count} characters (long — aim for 100-300)")
 
 # Hashtags
 hashtags_raw = st.text_input(
@@ -127,9 +127,9 @@ hashtags = [tag.strip() for tag in hashtags_raw.split(",") if tag.strip()] if ha
 if hashtags:
     count = len(hashtags)
     if 5 <= count <= 10:
-        st.caption(f"✅ {count} hashtags (optimal range)")
+        st.caption(f"{count} hashtags (optimal range)")
     else:
-        st.caption(f"⚠️ {count} hashtags (aim for 5-10)")
+        st.caption(f"{count} hashtags (aim for 5-10)")
 
 # Two-column layout for selectors
 col1, col2 = st.columns(2)
@@ -178,7 +178,7 @@ with col2:
     )
 
 # Posting schedule row
-st.subheader("🕐 Posting Schedule")
+st.subheader("Posting Schedule")
 col3, col4 = st.columns(2)
 
 with col3:
@@ -190,9 +190,10 @@ with col3:
         help="What hour will you post? (24h format). Peak hours: 6-8 PM"
     )
     # Friendly time label
-    hour_label = f"{'🌅' if 5 <= posting_hour < 12 else '☀️' if 12 <= posting_hour < 18 else '🌙'} {posting_hour:02d}:00"
+    time_period = "Morning" if 5 <= posting_hour < 12 else "Afternoon" if 12 <= posting_hour < 18 else "Evening"
+    hour_label = f"{time_period} {posting_hour:02d}:00"
     if posting_hour in [18, 19, 20]:
-        hour_label += " ⭐ Peak"
+        hour_label += " (Peak)"
     st.caption(hour_label)
 
 with col4:
@@ -210,7 +211,7 @@ if detected_duration:
     duration_sec = detected_duration
 else:
     if uploaded_video:
-        st.warning("⚠️ Couldn't auto-detect video duration. Please enter it manually.")
+        st.warning("Couldn't auto-detect video duration. Please enter it manually.")
         duration_sec = st.number_input(
             "Video Duration (seconds)",
             min_value=1,
@@ -230,7 +231,7 @@ else:
         )
 
 # Trend alignment
-st.subheader("📈 Trend Alignment")
+st.subheader("Trend Alignment")
 col6, col7 = st.columns(2)
 
 with col6:
@@ -251,7 +252,7 @@ if has_trend:
 
 # Analyse Button
 st.markdown("---")
-analyse_clicked = st.button("🔍 Analyse Engagement", type="primary", use_container_width=True)
+analyse_clicked = st.button("Analyse Engagement", type="primary", use_container_width=True)
 
 # --- RESULTS AREA ---
 
@@ -272,15 +273,15 @@ if analyse_clicked:
     # Validate input
     is_valid, error_msg = validate_input(input_data)
     if not is_valid:
-        st.error(f"⚠️ {error_msg}")
+        st.error(f"{error_msg}")
     else:
         # Run prediction
-        with st.spinner("🔍 Analysing engagement potential..."):
+        with st.spinner("Analysing engagement potential..."):
             result = predict_engagement(input_data)
         
         # Check for errors
         if 'error' in result:
-            st.error(f"❌ Prediction failed: {result['error']}")
+            st.error(f"Prediction failed: {result['error']}")
         else:
             # Store in session state
             st.session_state[SessionKeys.OPTIMISER_INPUT] = input_data
@@ -314,7 +315,7 @@ if analyse_clicked:
             
             # --- ENGAGEMENT SCORE ---
             st.markdown("---")
-            st.subheader("📊 Engagement Prediction")
+            st.subheader("Engagement Prediction")
             
             score = result['score']  # Raw engagement rate (e.g., 9 = 9%)
             prediction = result['prediction']
@@ -341,34 +342,29 @@ if analyse_clicked:
             vs_average = ((score - DATASET_AVERAGE) / DATASET_AVERAGE) * 100
             vs_average_text = f"+{vs_average:.0f}%" if vs_average > 0 else f"{vs_average:.0f}%"
             
-            # Score display with colour coding and stars
+            # Score display with colour coding
             if performance_score >= 70:
-                score_colour = "🟢"
-                score_label = "Excellent"
-                stars = "⭐⭐⭐⭐⭐"
+                score_colour = "green"
+                score_label = "Excellent (5/5)"
             elif performance_score >= 55:
-                score_colour = "🟢"
-                score_label = "Good"
-                stars = "⭐⭐⭐⭐"
+                score_colour = "green"
+                score_label = "Good (4/5)"
             elif performance_score >= 45:
-                score_colour = "🟡"
-                score_label = "Average"
-                stars = "⭐⭐⭐"
+                score_colour = "yellow"
+                score_label = "Average (3/5)"
             elif performance_score >= 30:
-                score_colour = "🟡"
-                score_label = "Below Average"
-                stars = "⭐⭐"
+                score_colour = "yellow"
+                score_label = "Below Average (2/5)"
             else:
-                score_colour = "🔴"
-                score_label = "Needs Improvement"
-                stars = "⭐"
+                score_colour = "red"
+                score_label = "Needs Improvement (1/5)"
             
             # Main score display - clear performance indicator
             st.markdown(f"""
             <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 10px; margin-bottom: 20px;">
                 <h1 style="font-size: 3rem; margin: 0;">{performance_score}</h1>
                 <p style="font-size: 1.2rem; color: #888; margin: 5px 0;">Performance Score</p>
-                <p style="font-size: 1.5rem; margin: 10px 0;">{stars}</p>
+                <p style="font-size: 1.5rem; margin: 10px 0;">{score_label}</p>
                 <p style="font-size: 1rem; color: {'#2ecc71' if vs_average > 0 else '#e74c3c' if vs_average < 0 else '#888'};">
                     {vs_average_text} vs average
                 </p>
@@ -411,7 +407,7 @@ if analyse_clicked:
             st.progress(performance_score / 100, text=f"{score_label} ({score}% engagement rate)")
             
             # Contextual explanation
-            with st.expander("ℹ️ What do these numbers mean?"):
+            with st.expander("What do these numbers mean?"):
                 st.markdown(f"""
                 **Understanding Engagement Rates:**
                 
@@ -419,11 +415,11 @@ if analyse_clicked:
                 
                 | Engagement Rate | Performance | What it means |
                 |-----------------|-------------|---------------|
-                | **10%+** | Excellent ⭐⭐⭐⭐⭐ | Top-performing content |
-                | **8-10%** | Good ⭐⭐⭐⭐ | Above average |
-                | **6-8%** | Average ⭐⭐⭐ | Typical performance |
-                | **4-6%** | Below Average ⭐⭐ | Room for improvement |
-                | **<4%** | Low ⭐ | Needs optimization |
+                | **10%+** | Excellent (5/5) | Top-performing content |
+                | **8-10%** | Good (4/5) | Above average |
+                | **6-8%** | Average (3/5) | Typical performance |
+                | **4-6%** | Below Average (2/5) | Room for improvement |
+                | **<4%** | Low (1/5) | Needs optimization |
                 
                 **Your prediction: {score}%** → This puts you in the **{score_label.lower()}** category.
                 
@@ -434,7 +430,7 @@ if analyse_clicked:
             st.caption(f"Model: {result['model_version']} · {result['features_used']} features analysed")
             
             # Input summary
-            with st.expander("📋 Input Summary"):
+            with st.expander("Input Summary"):
                 sum_col1, sum_col2 = st.columns(2)
                 with sum_col1:
                     st.write(f"**Caption:** {len(caption)} characters")
@@ -449,7 +445,7 @@ if analyse_clicked:
 
             # --- XAI EXPLANATIONS SECTION ---
             st.markdown("---")
-            st.subheader("🔍 Why This Score?")
+            st.subheader("Why This Score?")
             
             # Load SHAP explainer and generate explanation
             try:
@@ -461,7 +457,7 @@ if analyse_clicked:
                     st.markdown(explanation['explanation_text'])
                     
                     # Top feature contributions
-                    with st.expander("📊 Feature Contributions (SHAP Analysis)", expanded=True):
+                    with st.expander("Feature Contributions (SHAP Analysis)", expanded=True):
                         contributions = explanation['feature_contributions'].copy()
                         
                         # Filter: For one-hot encoded features, only show active ones (value=1)
@@ -500,10 +496,10 @@ if analyse_clicked:
                         st.plotly_chart(fig, use_container_width=True)
                         
                         # Baseline info
-                        st.caption(f"📍 Baseline engagement: {explanation['baseline']*100:.2f}% (average across all content)")
+                        st.caption(f"Baseline engagement: {explanation['baseline']*100:.2f}% (average across all content)")
                     
                     # Model Limitations & Fairness Disclaimer
-                    with st.expander("ℹ️ About These Predictions (Model Limitations & Fairness)", expanded=False):
+                    with st.expander("About These Predictions (Model Limitations & Fairness)", expanded=False):
                         limitations = explainer.get_model_limitations()
                         st.warning(limitations['performance_caveat'])
                         st.info(limitations['data_bias_note'])
@@ -512,18 +508,18 @@ if analyse_clicked:
                     
                     # --- OPTIMIZATION SUGGESTIONS ---
                     st.markdown("---")
-                    st.subheader("💡 Optimization Suggestions")
+                    st.subheader("Optimization Suggestions")
                     
                     suggestions = explanation.get('suggestions', [])
                     if suggestions:
                         for i, suggestion in enumerate(suggestions, 1):
                             st.markdown(f"**{i}.** {suggestion}")
                     else:
-                        st.success("✅ Your content is well-optimized! No major improvements suggested.")
+                        st.success("Your content is well-optimized! No major improvements suggested.")
                     
                     # Quick optimization tips based on current input
                     st.markdown("---")
-                    st.subheader("⚡ Quick Wins")
+                    st.subheader("Quick Wins")
                     
                     quick_wins = []
                     
@@ -592,30 +588,30 @@ if analyse_clicked:
                                 with col_impact:
                                     st.metric(label="Est. Impact", value=qw['impact'], delta=None)
                     else:
-                        st.success("🎯 Great job! Your content is already well-optimized.")
+                        st.success("Great job! Your content is already well-optimized.")
                     
                     # Store explanation in session state for optimization suggestions
                     st.session_state[SessionKeys.CURRENT_EXPLANATION] = explanation
                     
                 else:
-                    st.info("💡 SHAP explanations not available. The model prediction is based on your content's features compared to historical data.")
+                    st.info("SHAP explanations not available. The model prediction is based on your content's features compared to historical data.")
                     
             except Exception as e:
-                st.warning(f"⚠️ Could not generate explanation: {str(e)}")
-                st.info("💡 The engagement prediction is still valid - explanations are an optional enhancement.")
+                st.warning(f"Could not generate explanation: {str(e)}")
+                st.info("The engagement prediction is still valid - explanations are an optional enhancement.")
 
 # What's Next? section (always visible)
 st.markdown("---")
-st.subheader("🚀 What's Next?")
+st.subheader("What's Next?")
 st.info("After analysing your content, you can refine your ideas or explore new trends!")
 
 col_next1, col_next2, col_next3 = st.columns(3)
 with col_next1:
-    if st.button("🔥 Discover More Trends", use_container_width=True):
+    if st.button("Discover More Trends", use_container_width=True):
         st.switch_page("pages/Trend_Discovery.py")
 with col_next2:
-    if st.button("💡 Generate New Ideas", use_container_width=True):
+    if st.button("Generate New Ideas", use_container_width=True):
         st.switch_page("pages/Content_Ideation.py")
 with col_next3:
-    if st.button("🏠 Back to Dashboard", use_container_width=True):
+    if st.button("Back to Dashboard", use_container_width=True):
         st.switch_page("main.py")

@@ -39,18 +39,18 @@ saved_idea_titles = [i['idea_title'] for i in get_saved_ideas(user['id'])] if us
 
 Platform = Literal["TikTok", "Instagram Reels", "YouTube Shorts"]
 
-st.title("🎬 AI Content Ideation")
+st.title("AI Content Ideation")
 st.markdown("Generate creative video ideas from trending topics, then get detailed shot-by-shot scripts.")
 
 # Check if we have analysed trends from Objective 1
 if SessionKeys.ANALYZED_TRENDS not in st.session_state or not st.session_state[SessionKeys.ANALYZED_TRENDS]:
-    st.warning("⚠️ No analysed trends found. Please go to Trend Discovery first and analyse some trends.")
+    st.warning("No analysed trends found. Please go to Trend Discovery first and analyse some trends.")
     if st.button("Go to Trend Discovery"):
         st.switch_page("pages/Trend_Discovery.py")
     st.stop()
 
 # Sidebar - Trend Selection
-st.sidebar.header("🎯 Select Trend")
+st.sidebar.header("Select Trend")
 
 analyzed_trends = st.session_state[SessionKeys.ANALYZED_TRENDS]
 trend_topics = list(analyzed_trends.keys())
@@ -83,10 +83,10 @@ num_variations = st.sidebar.slider(
 )
 
 # Generate Ideas Button
-if st.sidebar.button("🎬 Generate Ideas", type="primary"):
+if st.sidebar.button("Generate Ideas", type="primary"):
     trend = analyzed_trends[selected_topic]
     
-    with st.spinner("✨ Generating creative content ideas..."):
+    with st.spinner("Generating creative content ideas..."):
         try:
             # Extract trend data
             keywords_list = [kw[0] for kw in trend.get("keywords", [])[:10]]
@@ -118,12 +118,12 @@ if st.sidebar.button("🎬 Generate Ideas", type="primary"):
                 st.session_state[SessionKeys.CURRENT_TREND_TOPIC] = selected_topic
                 st.session_state[SessionKeys.CURRENT_PLATFORM] = selected_platform
                 
-                st.success(f"✅ Generated {result['total_generated']} ideas in {result['generation_time']}s")
+                st.success(f"Generated {result['total_generated']} ideas in {result['generation_time']}s")
             else:
-                st.error(f"❌ Generation failed: {result['error']}")
+                st.error(f"Generation failed: {result['error']}")
         
         except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
+            st.error(f"Error: {str(e)}")
 
 # Display Generated Ideas
 if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionKeys.GENERATED_IDEAS]:
@@ -132,7 +132,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
     # Header with regenerate button
     col_header1, col_header2 = st.columns([3, 1])
     with col_header1:
-        st.subheader(f"💡 Content Ideas for: {st.session_state[SessionKeys.CURRENT_TREND_TOPIC]}")
+        st.subheader(f"Content Ideas for: {st.session_state[SessionKeys.CURRENT_TREND_TOPIC]}")
         st.caption(f"Platform: {st.session_state[SessionKeys.CURRENT_PLATFORM]}")
     
     # Allow user to regenerate new ideas with same trend/platform parameters
@@ -140,7 +140,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
         if st.button("🔄 Regenerate Ideas", help="Generate new ideas for the same trend"):
             trend = analyzed_trends[st.session_state[SessionKeys.CURRENT_TREND_TOPIC]]
             
-            with st.spinner("✨ Regenerating content ideas..."):
+            with st.spinner("Regenerating content ideas..."):
                 try:
                     # Extract trend data
                     keywords_list = [kw[0] for kw in trend.get("keywords", [])[:10]]
@@ -170,22 +170,22 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                         # Replace existing ideas
                         st.session_state[SessionKeys.GENERATED_IDEAS] = result["ideas"]
                         
-                        st.success(f"✅ Regenerated {result['total_generated']} new ideas!")
+                        st.success(f"Regenerated {result['total_generated']} new ideas!")
                         st.rerun()
                     else:
-                        st.error(f"❌ Regeneration failed: {result['error']}")
+                        st.error(f"Regeneration failed: {result['error']}")
                 
                 except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+                    st.error(f"Error: {str(e)}")
     
     # Display each idea in expandable card with full details, script generation, and action buttons
     for idx, idea in enumerate(st.session_state[SessionKeys.GENERATED_IDEAS], 1):
         # Engagement emoji
         engagement_emoji = {
-            "High": "🔥",
-            "Medium": "⚡",
-            "Low": "💡"
-        }.get(idea.get("estimated_engagement", "Medium"), "💡")
+            "High": "High",
+            "Medium": "Medium",
+            "Low": "Low"
+        }.get(idea.get("estimated_engagement", "Medium"), "Medium")
         
         with st.expander(f"{engagement_emoji} {idx}. {idea['title']}", expanded=(idx == 1)):
             # Metadata row
@@ -229,7 +229,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
             
             # Engagement Reasoning
             if idea.get("engagement_reasoning"):
-                st.markdown("### 📊 Why this engagement level?")
+                st.markdown("### Why this engagement level?")
                 st.caption(idea.get("engagement_reasoning"))
             
             # Generate Script Button
@@ -239,7 +239,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
             col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
             with col_btn1:
                 if st.button(f"Generate Full Script", key=f"gen_script_{idx}"):
-                    with st.spinner("✨ Generating detailed script..."):
+                    with st.spinner("Generating detailed script..."):
                         try:
                             script_result = generate_detailed_script(idea, include_dialogue=True)
                             
@@ -252,7 +252,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                             st.error(f" Error: {str(e)}")
             
             with col_btn2:
-                if st.button("📊 Optimize Engagement", key=f"optimize_{idx}"):
+                if st.button("Optimize Engagement", key=f"optimize_{idx}"):
                     # Store idea data for Engagement Optimiser using helper function
                     set_selected_idea({
                         "title": idea.get("title", ""),
@@ -269,9 +269,9 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
             with col_btn3:
                 is_saved = idea.get("title", "") in saved_idea_titles
                 if is_saved:
-                    st.success("✅ Saved")
+                    st.success("Saved")
                 else:
-                    if st.button("💾 Save Idea", key=f"save_idea_{idx}"):
+                    if st.button("Save Idea", key=f"save_idea_{idx}"):
                         save_idea(
                             user_id=user['id'],
                             idea_title=idea.get("title", ""),
@@ -281,7 +281,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                             trend_topic=st.session_state.get(SessionKeys.CURRENT_TREND_TOPIC, ""),
                             predicted_engagement=idea.get("estimated_engagement", "Medium")
                         )
-                        st.success("✅ Idea saved!")
+                        st.success("Idea saved!")
                         st.rerun()
             
             # Display Script if Generated
@@ -315,7 +315,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                         shot_col1, shot_col2 = st.columns([2, 1])
                         
                         with shot_col1:
-                            st.markdown(f"🎥 **Visual:** {shot.get('visual', '')}")
+                            st.markdown(f"**Visual:** {shot.get('visual', '')}")
                             if shot.get('dialogue'):
                                 st.markdown(f" **Dialogue:** _{shot.get('dialogue')}_")
                             if shot.get('text_overlay'):
@@ -360,13 +360,13 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
 
     # What's Next? section (after all ideas)
     st.markdown("---")
-    st.subheader("🚀 What's Next?")
+    st.subheader("What's Next?")
     st.info("Click **'Optimize Engagement'** on any idea above to predict its performance and get optimization tips!")
     
     col_next1, col_next2 = st.columns(2)
     with col_next1:
-        if st.button("📊 Go to Engagement Optimiser", use_container_width=True):
+        if st.button("Go to Engagement Optimiser", use_container_width=True):
             st.switch_page("pages/Engagement_Optimiser.py")
     with col_next2:
-        if st.button("🏠 Back to Dashboard", use_container_width=True):
+        if st.button("Back to Dashboard", use_container_width=True):
             st.switch_page("main.py")

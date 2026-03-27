@@ -25,7 +25,7 @@ from database.db_manager import (
 # Page config
 st.set_page_config(
     page_title="User Settings - Creator Compass",
-    page_icon="⚙️",
+    page_icon=None,
     layout="wide"
 )
 
@@ -40,17 +40,17 @@ user = get_current_user()
 user_data = get_user_by_id(user['id'])
 preferences = get_user_preferences(user['id']) or {}
 
-st.title("⚙️ User Settings")
+st.title("User Settings")
 st.markdown("Manage your profile, preferences, and account settings.")
 st.markdown("---")
 
 # Create tabs for different settings sections
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "👤 Profile", 
-    "🔒 Password", 
-    "🎯 Preferences", 
-    "⚠️ Account",
-    "📋 Privacy & Terms"
+    "Profile", 
+    "Password", 
+    "Preferences", 
+    "Account",
+    "Privacy & Terms"
 ])
 
 
@@ -260,7 +260,7 @@ with tab4:
     # Delete account section
     st.markdown("### Delete Account")
     st.warning(
-        "⚠️ **This action is permanent and cannot be undone.** "
+        "**This action is permanent and cannot be undone.** "
         "All your data including saved trends, content ideas, and predictions will be deleted."
     )
     
@@ -292,7 +292,7 @@ with tab4:
                 if confirm_username == user_data['username']:
                     delete_user(user['id'])
                     logout_user()
-                    st.success("Account deleted successfully. Goodbye! 👋")
+                    st.success("Account deleted successfully. Goodbye!")
                     st.rerun()
                 else:
                     st.error("Username doesn't match. Please try again.")
@@ -341,10 +341,10 @@ with tab5:
         - Engagement predictions based on historical data
         
         ### What to Know
-        ⚠️ **Predictions are guesses**, not guarantees  
-        ⚠️ **Generated ideas are suggestions**, not guaranteed viral content  
-        ⚠️ You're responsible for checking if content breaks platform rules  
-        ⚠️ Don't use this to create spam, fake, or malicious content
+**Predictions are guesses**, not guarantees  
+        **Generated ideas are suggestions**, not guaranteed viral content 
+        You're responsible for checking if content breaks platform rules  
+        Don't use this to create spam, fake, or malicious content
         
         ### Your Content
         - Everything you create in this app is yours

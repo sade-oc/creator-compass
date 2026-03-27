@@ -87,22 +87,22 @@ class EngagementExplainer:
         """
         return {
             'performance_caveat': (
-                '⚠️ **Model Accuracy:** Predictions are estimates based on historical data. '
+                ':warning: **Model Accuracy:** Predictions are estimates based on historical data. '
                 'Actual engagement may vary significantly. The model explains ~41% of engagement variance (R²=0.4143). '
                 'Many external factors (algorithm changes, viral trends, influencer status) are not captured in this model.'
             ),
             'data_bias_note': (
-                '📊 **Data Bias:** Training data comes from TikTok, Instagram, and YouTube content across 11 niches. '
+                ':bar_chart: **Data Bias:** Training data comes from TikTok, Instagram, and YouTube content across 11 niches. '
                 'The model performs better for some content categories than others. Popular niches may have more training data, '
                 'leading to slightly better predictions for those categories. Smaller niches have higher prediction uncertainty.'
             ),
             'fairness_consideration': (
-                '⚖️ **Fairness:** This model predicts engagement based on past content patterns. It is NOT designed to determine '
+                ':scales: **Fairness:** This model predicts engagement based on past content patterns. It is NOT designed to determine '
                 'content quality, virality potential, or creator talent. Low predictions don\'t mean your content is bad—just that it may need '
                 'different optimisation strategies based on your specific audience and niche.'
             ),
             'what_we_cant_predict': (
-                '❌ **What This Model Cannot Predict:** Viral moments, celebrity takeovers, trending challenges, algorithm preference shifts, '
+                ':cross_mark: **What This Model Cannot Predict:** Viral moments, celebrity takeovers, trending challenges, algorithm preference shifts, '
                 'user sentiment, or qualitative content appeal. Use these predictions as guidance, not guarantees.'
             )
         }
@@ -263,7 +263,7 @@ class EngagementExplainer:
         else:
             quality = "below average"
         
-        lines.append(f"📊 **Predicted Engagement: {pct:.2f}%** ({quality})")
+        lines.append(f":bar_chart: **Predicted Engagement: {pct:.2f}%** ({quality})")
         lines.append("")
         
         # Filter: For one-hot encoded features (platform_, category_, trend_, season_),
@@ -282,20 +282,20 @@ class EngagementExplainer:
         top_negative = active_contributions[active_contributions['shap_value'] < -0.001].head(3)
         
         if len(top_positive) > 0:
-            lines.append("✅ **Factors helping your engagement:**")
+            lines.append(":white_check_mark: **Factors helping your engagement:**")
             for _, row in top_positive.iterrows():
                 impact = row['shap_value'] * 100
                 lines.append(f"   • {row['display_name']}: +{impact:.2f}% engagement")
         
         if len(top_negative) > 0:
             lines.append("")
-            lines.append("⚠️ **Factors reducing your engagement:**")
+            lines.append(":warning: **Factors reducing your engagement:**")
             for _, row in top_negative.iterrows():
                 impact = row['shap_value'] * 100
                 lines.append(f"   • {row['display_name']}: {impact:.2f}% engagement")
         
         if len(top_positive) == 0 and len(top_negative) == 0:
-            lines.append("ℹ️ Your content features have minimal impact on engagement.")
+            lines.append(":information: Your content features have minimal impact on engagement.")
             lines.append("   Platform baseline is the primary driver.")
         
         return "\n".join(lines)

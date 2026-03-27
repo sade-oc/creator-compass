@@ -35,7 +35,7 @@ user = get_current_user()
 # Get already saved trends to prevent duplicates
 saved_trend_topics = [t['trend_topic'] for t in get_saved_trends(user['id'])] if user else []
 
-st.title("📈 Trend Discovery")
+st.title("Trend Discovery")
 
 # Sidebar - Stage 1: Quick Preview
 st.sidebar.header("Stage 1: Browse Trends")
@@ -79,7 +79,7 @@ if st.sidebar.button("Get Trending Topics", type="primary"):
 
 # Check if we have preview trends
 if SessionKeys.PREVIEW_TRENDS not in st.session_state or not st.session_state[SessionKeys.PREVIEW_TRENDS]:
-    st.info("👆 Click 'Get Trending Topics' to see what's trending!")
+    st.info("Click 'Get Trending Topics' to see what's trending!")
     st.stop()
 
 # Filter preview trends by niche
@@ -94,7 +94,7 @@ if not filtered_preview:
     st.stop()
 
 # Display preview trends
-st.subheader(f"📊 {len(filtered_preview)} Trending Topics")
+st.subheader(f"{len(filtered_preview)} Trending Topics")
 
 # Create DataFrame for preview
 preview_data = []
@@ -236,7 +236,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
     for idx, row in df.iterrows():
         trend = row["_full_data"]
         
-        with st.expander(f"🔍 {row['topic']} - Score: {row['score']}"):
+        with st.expander(f"{row['topic']} - Score: {row['score']}"):
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -264,7 +264,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
                     st.text("No sentiment data")
             
             with col3:
-                st.markdown("**#️⃣ Hashtags**")
+                st.markdown("**Hashtags**")
                 hashtags = trend.get("hashtags", [])[:10]
                 if hashtags:
                     for ht, count in hashtags:
@@ -273,7 +273,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
                     st.text("No hashtags")
             
             st.markdown("---")
-            st.markdown("**📱 Sample Tweets**")
+            st.markdown("**Sample Tweets**")
             tweets = trend.get("tweets", [])[:5]
             if tweets:
                 for i, tweet in enumerate(tweets, 1):
@@ -281,7 +281,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
                     likes = tweet.get("likes", 0)
                     retweets = tweet.get("retweets", 0)
                     # Mask author username for privacy
-                    st.markdown(f"**{i}.** @Anonymous User - ❤️ {likes} | 🔁 {retweets}")
+                    st.markdown(f"**{i}.** @Anonymous User - Likes: {likes} | Retweets: {retweets}")
                     st.text(text)
                     st.markdown("")
             else:
@@ -292,16 +292,16 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
             col_act1, col_act2 = st.columns(2)
             
             with col_act1:
-                if st.button("🎬 Use for Content Ideas", key=f"use_trend_{row['topic']}", type="primary"):
+                if st.button("Use for Content Ideas", key=f"use_trend_{row['topic']}", type="primary"):
                     set_selected_trend(row['topic'])
                     st.switch_page("pages/Content_Ideation.py")
             
             with col_act2:
                 is_saved = row['topic'] in saved_trend_topics
                 if is_saved:
-                    st.success("✅ Saved")
+                    st.success("Saved")
                 else:
-                    if st.button("💾 Save Trend", key=f"save_trend_{row['topic']}"):
+                    if st.button("Save Trend", key=f"save_trend_{row['topic']}"):
                         save_trend(
                             user_id=user['id'],
                             trend_topic=row['topic'],
@@ -309,18 +309,18 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
                             trend_source="twitter",
                             trend_niche=row['niche']
                         )
-                        st.success("✅ Trend saved!")
+                        st.success("Trend saved!")
                         st.rerun()
     
     # What's Next? section
     st.markdown("---")
-    st.subheader("🚀 What's Next?")
+    st.subheader("What's Next?")
     st.info("Select a trend above and click **'Use for Content Ideas'** to generate AI-powered content ideas!")
     
     col_next1, col_next2 = st.columns(2)
     with col_next1:
-        if st.button("💡 Go to Content Ideation", use_container_width=True):
+        if st.button("Go to Content Ideation", use_container_width=True):
             st.switch_page("pages/Content_Ideation.py")
     with col_next2:
-        if st.button("🏠 Back to Dashboard", use_container_width=True):
+        if st.button("Back to Dashboard", use_container_width=True):
             st.switch_page("main.py")

@@ -1,15 +1,16 @@
 # Engagement Prediction Model
 
-**Status:** ✅ Production Ready  
+**Status:** :white_check_mark: Production Ready  
 **Model Type:** Logistic Regression  
 **Training Date:** 2026-03-03  
 **Last Updated:** 2026-03-06
 
 ---
 
-## 📊 Model Performance
+## :bar_chart: Model Performance
 
 ### Test Set Results (Final Evaluation)
+
 - **F1 Score:** 0.8751
 - **ROC-AUC:** 0.8848
 - **Precision:** 0.8507
@@ -17,16 +18,18 @@
 - **Accuracy:** 0.7992
 
 ### Generalization
+
 - Performance drop from validation: 0.0067 (Excellent ✓)
 - Model generalizes well to unseen data
 
 ---
 
-## 🎯 Core Hypothesis Validation
+## :dart: Core Hypothesis Validation
 
 **Hypothesis:** Trend-aligned content significantly increases engagement probability
 
-**Result:** ✅ **VALIDATED**
+**Result:** :white_check_mark: **VALIDATED**
+
 - Trend impact: **45.9% improvement** in predicted engagement
 - Statistical significance: **p < 0.001** (highly significant)
 - Effect size: **Cohen's d = 1.4339** (large effect)
@@ -90,29 +93,30 @@ binary_predictions = model.predict(X)  # 0 = Low, 1 = High
 
 ---
 
-## 📈 Top 5 Most Important Features (SHAP)
+## :chart_increasing: Top 5 Most Important Features (SHAP)
 
 1. **has_trend** - Mean |SHAP|: 1.6339
-5. **trend_declining** - Mean |SHAP|: 1.2416
-4. **trend_stable** - Mean |SHAP|: 1.1048
-21. **platform_youtube** - Mean |SHAP|: 0.6697
-19. **platform_tiktok** - Mean |SHAP|: 0.5348
+2. **trend_declining** - Mean |SHAP|: 1.2416
+3. **trend_stable** - Mean |SHAP|: 1.1048
+4. **platform_youtube** - Mean |SHAP|: 0.6697
+5. **platform_tiktok** - Mean |SHAP|: 0.5348
 
 ---
 
 ## 📦 Saved Artifacts
 
-| File | Description | Size |
-|------|-------------|------|
-| `engagement_model_logistic_regression.pkl` | Trained model | 0.00 MB |
-| `shap_explainer.pkl` | SHAP explainer | 0.04 MB |
-| `model_config.json` | Configuration & metadata | - |
-| `model_comparison_results.json` | Model selection results | - |
-| `feature_importance_best_model.csv` | Feature rankings | - |
+| File                                       | Description              | Size    |
+| ------------------------------------------ | ------------------------ | ------- |
+| `engagement_model_logistic_regression.pkl` | Trained model            | 0.00 MB |
+| `shap_explainer.pkl`                       | SHAP explainer           | 0.04 MB |
+| `model_config.json`                        | Configuration & metadata | -       |
+| `model_comparison_results.json`            | Model selection results  | -       |
+| `feature_importance_best_model.csv`        | Feature rankings         | -       |
 
 ### Figures & Visualizations
 
 All figures saved in `docs/figures/`:
+
 - `shap_importance_bar.png` - Global feature importance
 - `shap_summary.png` - SHAP beeswarm plot
 - `shap_dependence_*.png` - Feature dependence plots
@@ -124,10 +128,12 @@ All figures saved in `docs/figures/`:
 
 ---
 
-## 🚀 Use Cases
+## :rocket: Use Cases
 
 ### UC-02: Content Ideation
+
 Generate content recommendations with engagement predictions:
+
 ```python
 # Predict engagement for proposed content ideas
 ideas_df = pd.DataFrame([...])  # Your content ideas
@@ -136,7 +142,9 @@ top_ideas = ideas_df.iloc[engagement_scores.argsort()[-5:]]  # Top 5
 ```
 
 ### UC-04: Explainable Predictions
+
 Explain why specific content is predicted to perform well:
+
 ```python
 import shap
 explainer = joblib.load('models/shap_explainer.pkl')
@@ -145,7 +153,9 @@ shap.force_plot(explainer.expected_value, shap_values[0], X_sample.iloc[0])
 ```
 
 ### UC-06: Optimal Posting Times
+
 Load posting recommendations:
+
 ```python
 with open('docs/figures/optimal_posting_times.json', 'r') as f:
     posting_times = json.load(f)
@@ -156,7 +166,7 @@ best_hours = posting_times['recommendations']['tiktok']['top_5_hours']
 
 ---
 
-## ⚠️ Known Limitations
+## :warning: Known Limitations
 
 1. **Calibration:** Model calibration error is 0.1475 (acceptable for ranking, but precise probabilities may need recalibration)
 2. **Posting Times:** Model suggests late-night posting (21:00-01:00) due to has_trend dominance; consider stratified recommendations
@@ -177,7 +187,7 @@ best_hours = posting_times['recommendations']['tiktok']['top_5_hours']
 - **v1.0** (2026-03-06): Initial production model
   - Algorithm: Logistic Regression
   - Test F1: 0.8751
-  - Hypothesis: ✅ Validated
+  - Hypothesis: :white_check_mark: Validated
 
 ---
 

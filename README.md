@@ -202,11 +202,11 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 
 **Test Coverage**:
 
-- ✅ Authentication (user registration, login, password validation)
-- ✅ Database operations (save/retrieve trends, ideas, predictions)
-- ✅ M1 pipeline (trend fetching, NLP categorization)
-- ✅ M2 pipeline (content idea generation, validation)
-- ✅ M3 pipeline (engagement prediction, SHAP explanations)
+- :white_check_mark: Authentication (user registration, login, password validation)
+- :white_check_mark: Database operations (save/retrieve trends, ideas, predictions)
+- :white_check_mark: M1 pipeline (trend fetching, NLP categorization)
+- :white_check_mark: M2 pipeline (content idea generation, validation)
+- :white_check_mark: M3 pipeline (engagement prediction, SHAP explanations)
 
 **Test Results Location**: `tests/results/`
 
@@ -219,7 +219,7 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 
 #### Workflow 1: M1 Trend Discovery (2 minutes)
 
-1. **Start app** → Login → Click "📈 Discover Trends"
+1. **Start app** → Login → Click ":chart_increasing: Discover Trends"
 
 2. **Stage 1 - Quick Preview** (8-15s):
    - Select niche: "Tech/Gaming"
@@ -238,7 +238,7 @@ pytest tests/ --cov=app --cov=src --cov-report=html
      - Save button for persistence
 
 4. **Verify**:
-   - Save a trend by clicking "💾 Save Trend"
+   - Save a trend by clicking ":floppy_disk: Save Trend"
    - Dashboard should update "Saved Trends" count
    - Navigate away and back — trend should persist
 
@@ -247,21 +247,21 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 1. **Start from M1 Trend**: Click "Use for Content Ideas" on analysed trend
    - Should auto-navigate to M2 with trend pre-filled
 
-2. **Or start from M2 directly**: Click "🎬 Generate Ideas"
+2. **Or start from M2 directly**: Click ":movie_camera: Generate Ideas"
    - If no trends analysed, shows warning with link to M1
    - Select analysed trend from sidebar dropdown
 
 3. **Configure idea generation**:
    - Platform: Select "TikTok", "Instagram Reels", or "YouTube Shorts"
    - Variations: Slider 1-5 (default: 3)
-   - Click "🎬 Generate Ideas"
+   - Click ":movie_camera: Generate Ideas"
 
 4. **Expected output** (17.8s ± 1.5s):
    - 3 expandable idea cards with:
      - **11-field structure**: title, hook, angle, description, visual_style, duration, suggested_shots, caption, hashtags, estimated_engagement, engagement_reasoning
      - Metadata row: Engagement level, duration, visual style
      - Expansion reveals full details
-     - Buttons: "Generate Full Script", "📊 Optimise Engagement", "💾 Save Idea"
+     - Buttons: "Generate Full Script", ":bar_chart: Optimise Engagement", ":floppy_disk: Save Idea"
 
 5. **Generate Full Script** (optional):
    - Click button on any idea
@@ -281,10 +281,10 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 
 #### Workflow 3: M3 Engagement Optimiser (30 seconds)
 
-1. **Start from M2 Idea**: Click "📊 Optimise Engagement"
+1. **Start from M2 Idea**: Click ":bar_chart: Optimise Engagement"
    - Form auto-fills: caption (hook + description), hashtags, platform, niche
 
-2. **Or start from M3 directly**: Click "📊 Engagement Optimiser"
+2. **Or start from M3 directly**: Click ":bar_chart: Engagement Optimiser"
    - Manual form entry
 
 3. **Form fields**:
@@ -299,7 +299,7 @@ pytest tests/ --cov=app --cov=src --cov-report=html
    - Trend Alignment: Checkbox + trend type selector (Rising/Seasonal/Stable/Declining)
 
 4. **Run Prediction**:
-   - Click "🔍 Analyse Engagement"
+   - Click ":mag_right: Analyse Engagement"
    - **Expected** (sub-1s):
      - Performance Score (0-100) with star rating
      - Engagement Rate (%) vs dataset average
@@ -320,9 +320,9 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 
 **Benchmark Targets** (from requirements):
 
-- M1: <60s target → **Actual: 19.70s ± 1.35s** ✅ PASS
-- M2: <15s target → **Actual: 17.83s ± 1.57s** ⚠️ FAIL (19% over)
-- E2E: <90s target → **Actual: 37.53s ± 2.69s** ✅ PASS
+- M1: <60s target → **Actual: 19.70s ± 1.35s** :white_check_mark: PASS
+- M2: <15s target → **Actual: 17.83s ± 1.57s** :warning: FAIL (19% over)
+- E2E: <90s target → **Actual: 37.53s ± 2.69s** :white_check_mark: PASS
 
 **To Reproduce Benchmarks**:
 
@@ -330,7 +330,6 @@ pytest tests/ --cov=app --cov=src --cov-report=html
 python tests/benchmark_performance.py
 # Generates: tests/results/PERFORMANCE_BENCHMARK_RESULTS.csv
 ```
-
 
 ## Key Features & Workflows
 
@@ -382,15 +381,15 @@ python tests/benchmark_performance.py
 
 ### Timing Benchmarks (5 runs, mean ± SD)
 
-| Component                              | Time           | Target | Status             |
-| -------------------------------------- | -------------- | ------ | ------------------ |
-| M1 Stage 1 (Fetch Trends)              | 8-15s          | <60s   | ✅ Pass            |
-| M1 Stage 2 (Deep Analysis, 3-5 trends) | 1-2 min        | <60s   | ⚠️ Marginal        |
-| M1 Total (E2E)                         | 19.70s ± 1.35s | <60s   | ✅ Pass            |
-| M2 Idea Generation                     | 17.83s ± 1.57s | <15s   | ⚠️ Fail (19% over) |
-| M2 Script Generation                   | ~15-25s        | <30s   | ✅ Pass (est.)     |
-| M3 Prediction (Local)                  | <1s            | N/A    | ✅ < 1ms           |
-| E2E Workflow                           | 37.53s ± 2.69s | <90s   | ✅ Pass            |
+| Component                              | Time           | Target | Status                         |
+| -------------------------------------- | -------------- | ------ | ------------------------------ |
+| M1 Stage 1 (Fetch Trends)              | 8-15s          | <60s   | :white_check_mark: Pass        |
+| M1 Stage 2 (Deep Analysis, 3-5 trends) | 1-2 min        | <60s   | :warning: Marginal             |
+| M1 Total (E2E)                         | 19.70s ± 1.35s | <60s   | :white_check_mark: Pass        |
+| M2 Idea Generation                     | 17.83s ± 1.57s | <15s   | :warning: Fail (19% over)      |
+| M2 Script Generation                   | ~15-25s        | <30s   | :white_check_mark: Pass (est.) |
+| M3 Prediction (Local)                  | <1s            | N/A    | :white_check_mark: < 1ms       |
+| E2E Workflow                           | 37.53s ± 2.69s | <90s   | :white_check_mark: Pass        |
 
 **Notes**:
 
@@ -536,4 +535,3 @@ kill -9 <PID>
 - SHAP breakdown shows which factors drove score
 
 ---
-

@@ -173,7 +173,7 @@ def generate_content_ideas(
             hashtags, sentiment, num_variations
         )
         
-        print(f"\n🎬 Generating {num_variations} content ideas for: {trend_topic}")
+        print(f"\n:movie_camera: Generating {num_variations} content ideas for: {trend_topic}")
         print(f"   Platform: {platform} | Niche: {niche}")
         
         # Call OpenAI API

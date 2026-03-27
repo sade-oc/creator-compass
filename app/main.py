@@ -33,7 +33,7 @@ init_db()
 # Configure Streamlit page layout and metadata
 st.set_page_config(
     page_title="Creator Compass",
-    page_icon="🧭",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -43,7 +43,7 @@ render_sidebar()
 
 if is_authenticated():
     # Main content for authenticated users
-    st.title("🧭 Creator Compass")
+    st.title("Creator Compass")
     st.subheader("AI-powered micro-content coaching platform")
     # Load user data and render dashboard with stats, navigation, and saved items
     user = get_current_user()
@@ -53,11 +53,11 @@ if is_authenticated():
         saved_ideas = get_saved_ideas(user['id'], limit=5)
         recent_predictions = get_prediction_history(user['id'], limit=5)
     
-    st.success(f"Welcome back, **{user['username']}**! 👋")
+    st.success(f"Welcome back, **{user['username']}**!")
     
     # Dashboard stats
     st.markdown("---")
-    st.subheader("📊 Your Dashboard")
+    st.subheader("Your Dashboard")
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -71,30 +71,30 @@ if is_authenticated():
     
     # Quick actions with navigation buttons
     st.markdown("---")
-    st.subheader("🚀 Quick Actions")
+    st.subheader("Quick Actions")
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("### 📈 Discover Trends")
+        st.markdown("### Discover Trends")
         st.caption("Find trending topics across social platforms.")
         if st.button("Go to Trend Discovery", key="nav_trends", use_container_width=True):
             st.switch_page("pages/Trend_Discovery.py")
     with col2:
-        st.markdown("### 💡 Generate Ideas")
+        st.markdown("### Generate Ideas")
         st.caption("Get AI-powered content ideas based on trends.")
         if st.button("Go to Content Ideation", key="nav_ideas", use_container_width=True):
             st.switch_page("pages/Content_Ideation.py")
     with col3:
-        st.markdown("### ⚡ Optimize Content")
+        st.markdown("### Optimize Content")
         st.caption("Predict engagement and get optimization tips.")
         if st.button("Go to Engagement Optimiser", key="nav_optimiser", use_container_width=True):
             st.switch_page("pages/Engagement_Optimiser.py")
     
     # Saved Items Section
     st.markdown("---")
-    st.subheader("📌 Your Saved Items")
+    st.subheader("Your Saved Items")
     
-    tab_trends, tab_ideas, tab_preds = st.tabs(["💾 Saved Trends", "💡 Saved Ideas", "📊 Recent Predictions"])
+    tab_trends, tab_ideas, tab_preds = st.tabs(["Saved Trends", "Saved Ideas", "Recent Predictions"])
     
     with tab_trends:
         if saved_trends:
@@ -104,16 +104,16 @@ if is_authenticated():
                     st.markdown(f"**{trend['trend_topic']}**")
                     st.caption(f"Score: {trend['trend_score']} | Niche: {trend['trend_niche']} | Saved: {trend['saved_at'][:10]}")
                 with col_view:
-                    if st.button("👁️ View", key=f"view_trend_{trend['id']}", help="View full trend", use_container_width=True):
+                    if st.button("View", key=f"view_trend_{trend['id']}", help="View full trend", use_container_width=True):
                         st.session_state[f"expand_trend_{trend['id']}"] = True
                 with col_action:
-                    if st.button("🗑️", key=f"del_trend_{trend['id']}", help="Delete", use_container_width=True):
+                    if st.button("Delete", key=f"del_trend_{trend['id']}", help="Delete", use_container_width=True):
                         delete_saved_trend(trend['id'], user['id'])
                         st.rerun()
                 
                 # Expandable trend details
                 if st.session_state.get(f"expand_trend_{trend['id']}", False):
-                    with st.expander(f"📊 Trend Details: {trend['trend_topic']}", expanded=True):
+                    with st.expander(f"Trend Details: {trend['trend_topic']}", expanded=True):
                         col_d1, col_d2 = st.columns(2)
                         with col_d1:
                             st.metric("Trend Score", trend['trend_score'])
@@ -139,16 +139,16 @@ if is_authenticated():
                     st.markdown(f"**{idea['idea_title']}**")
                     st.caption(f"Platform: {idea['platform']} | Category: {idea['category']} | Saved: {idea['created_at'][:10]}")
                 with col_view:
-                    if st.button("👁️ View", key=f"view_idea_{idea['id']}", help="View full idea", use_container_width=True):
+                    if st.button("View", key=f"view_idea_{idea['id']}", help="View full idea", use_container_width=True):
                         st.session_state[f"expand_idea_{idea['id']}"] = True
                 with col_action:
-                    if st.button("🗑️", key=f"del_idea_{idea['id']}", help="Delete", use_container_width=True):
+                    if st.button("Delete", key=f"del_idea_{idea['id']}", help="Delete", use_container_width=True):
                         delete_saved_idea(idea['id'], user['id'])
                         st.rerun()
                 
                 # Expandable idea details
                 if st.session_state.get(f"expand_idea_{idea['id']}", False):
-                    with st.expander(f"💡 Idea Details: {idea['idea_title']}", expanded=True):
+                    with st.expander(f"Idea Details: {idea['idea_title']}", expanded=True):
                         col_i1, col_i2 = st.columns(2)
                         with col_i1:
                             st.metric("Platform", idea['platform'])
@@ -172,8 +172,8 @@ if is_authenticated():
                     st.caption(f"Platform: {pred['platform']} | Category: {pred['category']} | Date: {pred['created_at'][:10]}")
                 with col_score:
                     score = pred['performance_score']
-                    color = "🟢" if score >= 55 else "🟡" if score >= 40 else "🔴"
-                    st.metric("Score", f"{color} {score}")
+                    color = "green" if score >= 55 else "orange" if score >= 40 else "red"
+                    st.metric("Score", f"{score}", delta=None, delta_color=color)
                 st.markdown("---")
         else:
             st.info("No predictions yet. Go to Engagement Optimiser to analyse your content!")
@@ -183,7 +183,7 @@ else:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.title("🧭 Creator Compass")
+        st.title("Creator Compass")
         st.subheader("AI-powered micro-content coaching platform")
         st.markdown("---")
         
