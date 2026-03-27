@@ -59,8 +59,8 @@ def extract_hashtags(tweets: list[dict[str, Any]]) -> list[tuple[str, int]]:
     return counter.most_common(10)
 
 
-def analyze_sentiment(tweets: list[dict[str, Any]]) -> dict[str, Any]:
-    """Analyze sentiment of tweets."""
+def analyse_sentiment(tweets: list[dict[str, Any]]) -> dict[str, Any]:
+    """Analyse sentiment of tweets."""
     sentiments = []
     
     for tweet in tweets:
@@ -200,7 +200,7 @@ def process_trend_nlp(trend: dict[str, Any]) -> dict[str, Any]:
     # Add NLP analysis
     trend["keywords"] = extract_keywords(tweets, top_n=10)
     trend["hashtags"] = extract_hashtags(tweets)
-    trend["sentiment"] = analyze_sentiment(tweets)
+    trend["sentiment"] = analyse_sentiment(tweets)
 
     # Use GPT for intelligent categorization
     topic = trend.get("topic", "")

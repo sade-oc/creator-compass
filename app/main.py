@@ -9,6 +9,7 @@ Entry point for the Streamlit application. Provides authenticated users with:
 Unauthenticated users see login/signup forms.
 """
 
+# Imports
 import streamlit as st
 from utils.helpers import load_examples, render_sidebar
 from auth.authenticator import (
@@ -39,8 +40,9 @@ st.set_page_config(
 )
 
 # Render sidebar with user info (only when logged in)
-render_sidebar()
+render_sidebar() #imported from helpers.py
 
+# Runs only if user is authenticated. Shows dashboard with stats, navigation, and saved items.
 if is_authenticated():
     # Main content for authenticated users
     st.title("Creator Compass")
@@ -85,8 +87,8 @@ if is_authenticated():
         if st.button("Go to Content Ideation", key="nav_ideas", use_container_width=True):
             st.switch_page("pages/Content_Ideation.py")
     with col3:
-        st.markdown("### Optimize Content")
-        st.caption("Predict engagement and get optimization tips.")
+        st.markdown("### Optimise Content")
+        st.caption("Predict engagement and get optimisation tips.")
         if st.button("Go to Engagement Optimiser", key="nav_optimiser", use_container_width=True):
             st.switch_page("pages/Engagement_Optimiser.py")
     

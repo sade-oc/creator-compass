@@ -264,7 +264,7 @@ with tab4:
         "All your data including saved trends, content ideas, and predictions will be deleted."
     )
     
-    # Initialize delete confirmation state
+    # Initialise delete confirmation state
     if 'delete_confirmed' not in st.session_state:
         st.session_state.delete_confirmed = False
     

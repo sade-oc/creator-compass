@@ -42,7 +42,7 @@
   {
     "Hypothesis": "H5: Posting hour affects engagement",
     "Test Type": "One-way ANOVA",
-    "Number of Hours Analyzed": 24,
+    "Number of Hours Analysed": 24,
     "F-Statistic": "61.9077",
     "P-Value": "0.000000",
     "Significant (\u03b1=0.05)": "Yes",

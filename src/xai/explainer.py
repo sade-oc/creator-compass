@@ -1,11 +1,11 @@
 
 #EngagementExplainer: Application-integrated XAI for engagement predictions.
 
-
+# Imports and setup
 import numpy as np
 import pandas as pd
-import shap
-import joblib
+import shap #SHAP library for explainability
+import joblib #load saved model
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
@@ -18,12 +18,12 @@ warnings.filterwarnings('ignore')
 class EngagementExplainer:
     """
     SHAP-based explainer for engagement predictions.
-    Generates user-facing explanations and optimization suggestions.
+    Generates user-facing explanations and optimisation suggestions.
     """
     
     def __init__(self, model, feature_names: List[str], model_metadata: Optional[Dict] = None):
         """
-        Initialize explainer with a trained model.
+        Initialise explainer with a trained model.
         
         Args:
             model: Trained sklearn/xgboost model
@@ -54,8 +54,8 @@ class EngagementExplainer:
             'trend_label_seasonal': 'Seasonal Trend',
         }
         
-        # Optimization suggestions based on feature effects
-        self.optimization_tips = {
+        # Optimisation suggestions based on feature effects
+        self.optimisation_tips = {
             'duration_sec': {
                 'high_positive': 'Your video length is optimal for engagement.',
                 'high_negative': 'Consider shorter videos (<30 seconds) for better engagement.',
@@ -78,6 +78,7 @@ class EngagementExplainer:
             },
         }
     
+    # This prevents over-trust in AI predictions and shows fairness considerations 
     def get_model_limitations(self) -> Dict[str, str]:
         """
         Get model limitations and fairness disclaimers for the user.
@@ -107,9 +108,9 @@ class EngagementExplainer:
             )
         }
     
-    
+    # SHAP's fast explainer for tree based models 
     def _init_shap_explainer(self):
-        """Initialize SHAP TreeExplainer for the model."""
+        """Initialise SHAP TreeExplainer for the model."""
         try:
             self.explainer = shap.TreeExplainer(self.model)
             self.baseline = self.explainer.expected_value
@@ -154,6 +155,7 @@ class EngagementExplainer:
         
         return cls(model, feature_names, metadata)
     
+    # This is the core function that generates the explanations 
     def explain(self, features: Union[pd.DataFrame, Dict, np.ndarray], 
                 include_plot: bool = False) -> Dict[str, Any]:
         """
@@ -169,7 +171,7 @@ class EngagementExplainer:
                 - shap_values: Array of SHAP contributions
                 - feature_contributions: DataFrame of feature -> contribution
                 - explanation_text: Human-readable explanation
-                - suggestions: List of optimization suggestions
+                - suggestions: List of optimisation suggestions
                 - plot_path: (optional) Path to saved plot
         """
         # Convert input to DataFrame
@@ -233,6 +235,7 @@ class EngagementExplainer:
         
         return X
     
+    # Creates a DataFrame showing each feature's impact
     def _get_contributions(self, row: pd.Series, shap_values: np.ndarray) -> pd.DataFrame:
         """Build sorted DataFrame of feature contributions."""
         contributions = pd.DataFrame({
@@ -250,6 +253,7 @@ class EngagementExplainer:
         
         return contributions.sort_values('abs_shap', ascending=False)
     
+    # Creates a user friendly explanation based on the SHAP contributions and prediction
     def _generate_explanation(self, prediction: float, contributions: pd.DataFrame) -> str:
         """Generate human-readable explanation."""
         lines = []
@@ -300,8 +304,9 @@ class EngagementExplainer:
         
         return "\n".join(lines)
     
+    # generates actionable suggestions based on the most negative features so that users can understand how to improve their content for better engagement.
     def _generate_suggestions(self, contributions: pd.DataFrame) -> List[str]:
-        """Generate actionable optimization suggestions."""
+        """Generate actionable optimisation suggestions."""
         suggestions = []
         
         # Check top negative contributors for suggestions
@@ -309,8 +314,8 @@ class EngagementExplainer:
         
         for _, row in top_negative.iterrows():
             feat = row['feature']
-            if feat in self.optimization_tips:
-                tip = self.optimization_tips[feat]['high_negative']
+            if feat in self.optimisation_tips:
+                tip = self.optimisation_tips[feat]['high_negative']
                 suggestions.append(tip)
         
         # Platform-specific suggestion
@@ -324,13 +329,14 @@ class EngagementExplainer:
         # Add general tips if no specific suggestions
         if not suggestions:
             suggestions = [
-                "Your content settings are reasonably optimized.",
+                "Your content settings are reasonably optimised.",
                 "Focus on content quality — our analysis shows it's the main driver of engagement.",
                 "Experiment with different content styles to find what resonates with your audience."
             ]
         
         return suggestions
     
+    # Creates a SHAP waterfall visualsation 
     def _generate_waterfall(self, row: pd.Series, shap_values: np.ndarray, 
                             prediction: float, save_path: Optional[str] = None) -> str:
         """Generate and save waterfall plot for individual explanation."""
@@ -358,56 +364,4 @@ class EngagementExplainer:
         
         return save_path
     
-    def explain_batch(self, features: pd.DataFrame) -> List[Dict[str, Any]]:
-        """
-        Generate explanations for multiple predictions.
-        
-        Args:
-            features: DataFrame with multiple rows
-            
-        Returns:
-            List of explanation dicts
-        """
-        return [self.explain(features.iloc[[i]]) for i in range(len(features))]
-    
-    def get_global_importance(self, X: pd.DataFrame, sample_size: int = 1000) -> pd.DataFrame:
-        """
-        Compute global SHAP importance from a dataset.
-        
-        Args:
-            X: Feature DataFrame
-            sample_size: Number of samples to use
-            
-        Returns:
-            DataFrame with feature importance rankings
-        """
-        if len(X) > sample_size:
-            X = X.sample(sample_size, random_state=42)
-        
-        shap_values = self.explainer.shap_values(X)
-        
-        importance = pd.DataFrame({
-            'feature': self.feature_names,
-            'mean_abs_shap': np.abs(shap_values).mean(axis=0),
-            'std_shap': shap_values.std(axis=0)
-        }).sort_values('mean_abs_shap', ascending=False)
-        
-        importance['rank'] = range(1, len(importance) + 1)
-        
-        return importance
 
-
-# Convenience function for quick explanations
-def explain_prediction(features: Dict, model_path: str = 'models/engagement_model_random_forest.joblib') -> Dict:
-    """
-    Quick function to explain a single prediction.
-    
-    Args:
-        features: Dict of feature values
-        model_path: Path to trained model
-        
-    Returns:
-        Explanation dict
-    """
-    explainer = EngagementExplainer.load(model_path)
-    return explainer.explain(features)

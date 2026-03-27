@@ -43,7 +43,7 @@ st.title("AI Content Ideation")
 st.markdown("Generate creative video ideas from trending topics, then get detailed shot-by-shot scripts.")
 
 # Check if we have analysed trends from Objective 1
-if SessionKeys.ANALYZED_TRENDS not in st.session_state or not st.session_state[SessionKeys.ANALYZED_TRENDS]:
+if SessionKeys.ANALYSED_TRENDS not in st.session_state or not st.session_state[SessionKeys.ANALYSED_TRENDS]:
     st.warning("No analysed trends found. Please go to Trend Discovery first and analyse some trends.")
     if st.button("Go to Trend Discovery"):
         st.switch_page("pages/Trend_Discovery.py")
@@ -52,8 +52,8 @@ if SessionKeys.ANALYZED_TRENDS not in st.session_state or not st.session_state[S
 # Sidebar - Trend Selection
 st.sidebar.header("Select Trend")
 
-analyzed_trends = st.session_state[SessionKeys.ANALYZED_TRENDS]
-trend_topics = list(analyzed_trends.keys())
+analysed_trends = st.session_state[SessionKeys.ANALYSED_TRENDS]
+trend_topics = list(analysed_trends.keys())
 
 # Check if a trend was selected from Trend Discovery page (consume once)
 default_index = 0
@@ -71,7 +71,7 @@ selected_topic = st.sidebar.selectbox(
 selected_platform = st.sidebar.radio(
     "Target Platform",
     ["TikTok", "Instagram Reels", "YouTube Shorts"],
-    help="Platform optimization for your content"
+    help="Platform optimisation for your content"
 )
 
 num_variations = st.sidebar.slider(
@@ -84,7 +84,7 @@ num_variations = st.sidebar.slider(
 
 # Generate Ideas Button
 if st.sidebar.button("Generate Ideas", type="primary"):
-    trend = analyzed_trends[selected_topic]
+    trend = analysed_trends[selected_topic]
     
     with st.spinner("Generating creative content ideas..."):
         try:
@@ -138,7 +138,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
     # Allow user to regenerate new ideas with same trend/platform parameters
     with col_header2:
         if st.button("🔄 Regenerate Ideas", help="Generate new ideas for the same trend"):
-            trend = analyzed_trends[st.session_state[SessionKeys.CURRENT_TREND_TOPIC]]
+            trend = analysed_trends[st.session_state[SessionKeys.CURRENT_TREND_TOPIC]]
             
             with st.spinner("Regenerating content ideas..."):
                 try:
@@ -252,7 +252,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                             st.error(f" Error: {str(e)}")
             
             with col_btn2:
-                if st.button("Optimize Engagement", key=f"optimize_{idx}"):
+                if st.button("Optimise Engagement", key=f"optimise_{idx}"):
                     # Store idea data for Engagement Optimiser using helper function
                     set_selected_idea({
                         "title": idea.get("title", ""),
@@ -262,7 +262,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                         "hashtags": idea.get("hashtags", []),
                         "duration": idea.get("duration", "30-60 sec"),
                         "platform": st.session_state.get(SessionKeys.CURRENT_PLATFORM, "TikTok"),
-                        "niche": analyzed_trends.get(st.session_state[SessionKeys.CURRENT_TREND_TOPIC], {}).get("niche", "General"),
+                        "niche": analysed_trends.get(st.session_state[SessionKeys.CURRENT_TREND_TOPIC], {}).get("niche", "General"),
                     })
                     st.switch_page("pages/Engagement_Optimiser.py")
             
@@ -277,7 +277,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
                             idea_title=idea.get("title", ""),
                             idea_description=idea.get("description", ""),
                             platform=st.session_state.get(SessionKeys.CURRENT_PLATFORM, ""),
-                            category=analyzed_trends.get(st.session_state[SessionKeys.CURRENT_TREND_TOPIC], {}).get("niche", ""),
+                            category=analysed_trends.get(st.session_state[SessionKeys.CURRENT_TREND_TOPIC], {}).get("niche", ""),
                             trend_topic=st.session_state.get(SessionKeys.CURRENT_TREND_TOPIC, ""),
                             predicted_engagement=idea.get("estimated_engagement", "Medium")
                         )
@@ -361,7 +361,7 @@ if SessionKeys.GENERATED_IDEAS in st.session_state and st.session_state[SessionK
     # What's Next? section (after all ideas)
     st.markdown("---")
     st.subheader("What's Next?")
-    st.info("Click **'Optimize Engagement'** on any idea above to predict its performance and get optimization tips!")
+    st.info("Click **'Optimise Engagement'** on any idea above to predict its performance and get optimisation tips!")
     
     col_next1, col_next2 = st.columns(2)
     with col_next1:

@@ -23,7 +23,7 @@
       "Full dataset with 39 features",
       "One-hot encoded categories, platforms, trends, seasons",
       "LabelEncoder for day, hour bin, caption bin",
-      "No Z-score normalization - predicts raw engagement rate"
+      "No Z-score normalisation - predicts raw engagement rate"
     ]
   },
   "output_scaling": {

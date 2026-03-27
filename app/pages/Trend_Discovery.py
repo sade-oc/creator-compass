@@ -1,12 +1,12 @@
 """
 Trend Discovery Page
 
-Two-stage workflow to discover and analyze trending topics:
+Two-stage workflow to discover and analyse trending topics:
 1. Fetch trending topics from Twitter/X via Apify (fast, no tweets)
-2. Deep analyze selected trends: fetch tweets, extract keywords/sentiment/hashtags via NLP
+2. Deep analyse selected trends: fetch tweets, extract keywords/sentiment/hashtags via NLP
 3. Display results with option to save trends or create content ideas
 
-Users can filter by niche and control number of trends analyzed.
+Users can filter by niche and control number of trends analysed.
 """
 
 import streamlit as st
@@ -68,9 +68,9 @@ if st.sidebar.button("Get Trending Topics", type="primary"):
             
             # Store in session state
             st.session_state[SessionKeys.PREVIEW_TRENDS] = trends
-            # Initialise analyzed_trends if it doesn't exist (don't reset existing ones)
-            if SessionKeys.ANALYZED_TRENDS not in st.session_state:
-                st.session_state[SessionKeys.ANALYZED_TRENDS] = {}
+            # Initialise analysed_trends if it doesn't exist (don't reset existing ones)
+            if SessionKeys.ANALYSED_TRENDS not in st.session_state:
+                st.session_state[SessionKeys.ANALYSED_TRENDS] = {}
             st.success(f"Loaded {len(trends)} trending topics!")
             
         except Exception as e:
@@ -123,7 +123,7 @@ selected_topics = st.multiselect(
     max_selections=10
 )
 
-# Analyze button
+# Analyse button
 if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_topics) == 0):
     if len(selected_topics) > 5:
         st.warning("Analyzing more than 5 trends may take 3-5 minutes. Consider selecting fewer.")
@@ -135,14 +135,14 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
     
     # Fetch tweets and perform NLP analysis for each selected trend
     with st.spinner(f"Analyzing {len(selected_topics)} trends (fetching tweets + NLP)..."):
-        analyzed = st.session_state.get(SessionKeys.ANALYZED_TRENDS, {})
+        analysed = st.session_state.get(SessionKeys.ANALYSED_TRENDS, {})
         
         progress_bar = st.progress(0)
         status_text = st.empty()
         
         for i, topic in enumerate(selected_topics):
-            # Skip if already analyzed
-            if topic in analyzed:
+            # Skip if already analysed
+            if topic in analysed:
                 progress_bar.progress((i + 1) / len(selected_topics))
                 continue
             
@@ -163,30 +163,30 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
                 trend["tweets"] = tweets
                 
                 # Process NLP
-                analyzed_trend = process_trend_nlp(trend)
+                analysed_trend = process_trend_nlp(trend)
                 
                 # Store in session state
-                analyzed[topic] = analyzed_trend
+                analysed[topic] = analysed_trend
                 
             except Exception as e:
                 st.error(f"Error analyzing '{topic}': {e}")
             
             progress_bar.progress((i + 1) / len(selected_topics))
         
-        st.session_state[SessionKeys.ANALYZED_TRENDS] = analyzed
+        st.session_state[SessionKeys.ANALYSED_TRENDS] = analysed
         status_text.empty()
-        st.success(f"Analysis complete for {len(analyzed)} trends!")
+        st.success(f"Analysis complete for {len(analysed)} trends!")
 
 # Display analysed trends
-if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionKeys.ANALYZED_TRENDS]:
+if SessionKeys.ANALYSED_TRENDS in st.session_state and st.session_state[SessionKeys.ANALYSED_TRENDS]:
     st.markdown("---")
     st.subheader("Analysis Results")
     
-    analyzed_trends = st.session_state[SessionKeys.ANALYZED_TRENDS]
+    analysed_trends = st.session_state[SessionKeys.ANALYSED_TRENDS]
     
     # Convert to DataFrame
     df_data = []
-    for topic, trend in analyzed_trends.items():
+    for topic, trend in analysed_trends.items():
         keywords = trend.get("keywords", [])[:3]
         keywords_str = ", ".join([f"{kw[0]} ({kw[1]})" for kw in keywords]) if keywords else "-"
         
@@ -219,7 +219,7 @@ if SessionKeys.ANALYZED_TRENDS in st.session_state and st.session_state[SessionK
     
     # Summary metrics
     col1, col2, col3 = st.columns(3)
-    col1.metric("Analyzed Trends", len(df))
+    col1.metric("Analysed Trends", len(df))
     col2.metric("Total Tweets", df["tweet_count"].sum())
     avg_sentiment = df["_full_data"].apply(lambda x: x.get("sentiment", {}).get("average", 0)).mean()
     col3.metric("Avg Sentiment", f"{avg_sentiment:.2f}")

@@ -3,7 +3,7 @@ Engagement Optimiser Page
 
 Predict engagement scores for user-provided or AI-generated content ideas.
 Displays SHAP-based explanations showing which content features drive engagement.
-Allows users to optimize content and save predictions to their profile.
+Allows users to optimise content and save predictions to their profile.
 """
 
 import streamlit as st
@@ -419,7 +419,7 @@ if analyse_clicked:
                 | **8-10%** | Good (4/5) | Above average |
                 | **6-8%** | Average (3/5) | Typical performance |
                 | **4-6%** | Below Average (2/5) | Room for improvement |
-                | **<4%** | Low (1/5) | Needs optimization |
+                | **<4%** | Low (1/5) | Needs optimisation |
                 
                 **Your prediction: {score}%** → This puts you in the **{score_label.lower()}** category.
                 
@@ -506,24 +506,24 @@ if analyse_clicked:
                         st.info(limitations['fairness_consideration'])
                         st.error(limitations['what_we_cant_predict'])
                     
-                    # --- OPTIMIZATION SUGGESTIONS ---
+                    # --- OPTIMISATION SUGGESTIONS ---
                     st.markdown("---")
-                    st.subheader("Optimization Suggestions")
+                    st.subheader("Optimisation Suggestions")
                     
                     suggestions = explanation.get('suggestions', [])
                     if suggestions:
                         for i, suggestion in enumerate(suggestions, 1):
                             st.markdown(f"**{i}.** {suggestion}")
                     else:
-                        st.success("Your content is well-optimized! No major improvements suggested.")
+                        st.success("Your content is well-optimised! No major improvements suggested.")
                     
-                    # Quick optimization tips based on current input
+                    # Quick optimisation tips based on current input
                     st.markdown("---")
                     st.subheader("Quick Wins")
                     
                     quick_wins = []
                     
-                    # Caption length optimization
+                    # Caption length optimisation
                     caption_len = len(caption)
                     if caption_len < 100:
                         quick_wins.append({
@@ -538,7 +538,7 @@ if analyse_clicked:
                             'impact': '+0.3%'
                         })
                     
-                    # Posting time optimization
+                    # Posting time optimisation
                     if posting_hour not in [18, 19, 20, 21]:
                         quick_wins.append({
                             'tip': 'Post during peak hours',
@@ -588,9 +588,9 @@ if analyse_clicked:
                                 with col_impact:
                                     st.metric(label="Est. Impact", value=qw['impact'], delta=None)
                     else:
-                        st.success("Great job! Your content is already well-optimized.")
+                        st.success("Great job! Your content is already well-optimised.")
                     
-                    # Store explanation in session state for optimization suggestions
+                    # Store explanation in session state for optimisation suggestions
                     st.session_state[SessionKeys.CURRENT_EXPLANATION] = explanation
                     
                 else:

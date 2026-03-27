@@ -308,7 +308,7 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     if category not in VALID_CATEGORIES:
         category = 'lifestyle'  # Default fallback
     
-    # Initialize feature dictionary (in model feature order)
+    # Initialise feature dictionary (in model feature order)
     features = {}
     
     # ══════════════════════════════════════════════════════════════════════════

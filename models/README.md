@@ -17,10 +17,10 @@
 - **Recall:** 0.9010
 - **Accuracy:** 0.7992
 
-### Generalization
+### Generalisation
 
-- Performance drop from validation: 0.0067 (Excellent ✓)
-- Model generalizes well to unseen data
+- Performance drop from validation: 0.0067 (Excellent )
+- Model generalises well to unseen data
 
 ---
 
@@ -113,7 +113,7 @@ binary_predictions = model.predict(X)  # 0 = Low, 1 = High
 | `model_comparison_results.json`            | Model selection results  | -       |
 | `feature_importance_best_model.csv`        | Feature rankings         | -       |
 
-### Figures & Visualizations
+### Figures & Visualisations
 
 All figures saved in `docs/figures/`:
 

@@ -25,12 +25,12 @@ def get_connection():
 
 
 def init_db():
-    """Initialize database with schema."""
+    """Initialise database with schema."""
     with get_connection() as conn:
         with open(SCHEMA_PATH, 'r') as f:
             conn.executescript(f.read())
         conn.commit()
-    print(f"✓ Database initialized at {DB_PATH}")
+    print(f" Database initialised at {DB_PATH}")
 
 
 
@@ -415,6 +415,6 @@ def get_user_stats(user_id: int) -> Dict[str, Any]:
         return stats
 
 
-# Initialize database on import (creates tables if not exist)
+# Initialise database on import (creates tables if not exist)
 if __name__ == "__main__":
     init_db()

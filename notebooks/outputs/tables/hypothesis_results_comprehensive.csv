@@ -1,4 +1,4 @@
-Hypothesis,Test Type,Trending Mean,Non-Trending Mean,T-Statistic,P-Value,Cohen's d,Significant (α=0.05),Interpretation,Number of Platforms,F-Statistic,Sample Size,Mean Hashtag Count,Correlation Coefficient (r),Mean Caption Length,Number of Hours Analyzed,Optimal Posting Hour
+Hypothesis,Test Type,Trending Mean,Non-Trending Mean,T-Statistic,P-Value,Cohen's d,Significant (α=0.05),Interpretation,Number of Platforms,F-Statistic,Sample Size,Mean Hashtag Count,Correlation Coefficient (r),Mean Caption Length,Number of Hours Analysed,Optimal Posting Hour
 H1: Trending topics increase engagement,Independent t-test,0.0228,0.0011,141.5326,0.000000,1.0130,Yes,Trending posts have significantly higher engagement,,,,,,,,
 H2: Platform affects engagement differently,One-way ANOVA,,,,0.000000,,Yes,Different platforms have significantly different engagement,3.0,7739.8793,,,,,,
 H3: More hashtags increase engagement,Pearson Correlation,,,,0.000000,,Yes,Significant negative correlation,,,78077.0,3.68,-0.3291,,,

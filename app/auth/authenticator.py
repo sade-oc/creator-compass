@@ -261,5 +261,5 @@ def render_auth_sidebar():
                     st.rerun()
 
 
-# Initialize database when module loads
+# Initialise database when module loads
 init_db()

@@ -67,7 +67,7 @@ def fetch_tweets_for_trend(
                     "author": item.get("author", {}).get("userName", "")
                 })
         
-        print(f"    ✓ Got {len(tweets)} tweets")
+        print(f"     Got {len(tweets)} tweets")
         return tweets
     
     except Exception as e:
@@ -92,7 +92,7 @@ def fetch_twitter_trends(
     
     print("Fetching Twitter trends (US, live)...")
     
-    # Initialize Apify client
+    # Initialise Apify client
     client = ApifyClient(token)
     
     # Prepare Actor input - US only, live only
@@ -121,7 +121,7 @@ def fetch_twitter_trends(
         for item in client.dataset(run["defaultDatasetId"]).iterate_items():
             raw_trends.append(item)
     
-    print(f"  ✓ Retrieved {len(raw_trends)} raw trends from Apify")
+    print(f"   Retrieved {len(raw_trends)} raw trends from Apify")
     
     # Parse and normalize trends
     trends = []
@@ -173,7 +173,7 @@ def fetch_twitter_trends(
             "tweets": tweets 
         })
     
-    print(f"  ✓ Processed {len(trends)} trends, categorised into niches")
+    print(f"   Processed {len(trends)} trends, categorised into niches")
     return trends
 
 

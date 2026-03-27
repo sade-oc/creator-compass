@@ -97,7 +97,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Verify installation
-python -c "import streamlit; import sklearn; print('✓ Dependencies OK')"
+python -c "import streamlit; import sklearn; print(' Dependencies OK')"
 ```
 
 ### Step 4: Configure Environment Variables
@@ -118,11 +118,11 @@ LOG_LEVEL=INFO
 
 **Security Note**: `.env` is in `.gitignore` — never commit API keys to version control.
 
-### Step 5: Initialize Database
+### Step 5: Initialise Database
 
 ```bash
-# Database auto-initializes on first app run, but you can pre-initialize:
-python -c "from src.database.db_manager import init_db; init_db(); print('✓ Database initialized')"
+# Database auto-initialises on first app run, but you can pre-initialise:
+python -c "from src.database.db_manager import init_db; init_db(); print(' Database initialised')"
 ```
 
 ### Step 6: Verify Installation
@@ -133,7 +133,7 @@ python -c "
 from app.auth.authenticator import register_user
 from src.pipelines.content_ideation import generate_content_ideas
 from src.pipelines.nlp_processor import process_trend_nlp
-print('✓ All modules importable')
+print(' All modules importable')
 "
 ```
 
@@ -344,7 +344,7 @@ python tests/benchmark_performance.py
 
 ### Feature 2: AI Content Ideation (M2)
 
-- **Platform optimization**: TikTok, Instagram Reels, YouTube Shorts
+- **Platform optimisation**: TikTok, Instagram Reels, YouTube Shorts
 - **GPT-4o-mini generation**: 3-5 creative variations per trend
 - **11-field output**: Title, hook, angle, description, visual style, duration, shots, caption, hashtags, engagement estimate, reasoning
 - **Script generation**: Optional shot-by-shot breakdown with dialogue & timing
@@ -357,7 +357,7 @@ python tests/benchmark_performance.py
 - **39 features**: Platform, duration, caption length, hashtags, posting time, trend alignment, etc.
 - **SHAP explainability**: Top 5 feature contributions with directional impact
 - **Confidence intervals**: ±2.3pp based on model MAE
-- **Actionable recommendations**: Platform-specific optimization tips
+- **Actionable recommendations**: Platform-specific optimisation tips
 
 **Performance**: <1 second (local model inference)
 
@@ -499,7 +499,7 @@ lsof | grep creator_compass.db
 # Reset database (loses all user data)
 rm data/creator_compass.db
 
-# Restart app (auto-reinitializes)
+# Restart app (auto-reinitialises)
 streamlit run app/main.py
 ```
 

@@ -13,7 +13,8 @@ Platform = Literal["TikTok", "Instagram Reels", "YouTube Shorts"]
 
 def build_system_prompt() -> str:
     # Build the system prompt defining AI's role.
-    return """You are an expert short-form video content strategist specializing in TikTok, Instagram Reels, and YouTube Shorts. You help content creators generate viral-worthy video ideas based on trending topics. Your ideas are:
+    # This sets the context for the AI to generate content ideas that are creative, actionable, and optimised for short-form video platforms.
+    return """You are an expert short-form video content strategist specialising in TikTok, Instagram Reels, and YouTube Shorts. You help content creators generate viral-worthy video ideas based on trending topics. Your ideas are:
 - Creative and unique
 - Actionable with specific filming directions
 - Optimised for engagement
@@ -21,7 +22,8 @@ def build_system_prompt() -> str:
 
 
 def build_platform_instructions(platform: Platform) -> str:
-    # Get platform-specific optimization instructions.
+    # Get platform-specific optimisation instructions.
+    # These instructions guide the AI to tailor content ideas to the unique algorithms and audience preferences of each platform.
     instructions = {
         "TikTok": """Optimise for TikTok's FYP algorithm. Focus on:
 - Fast-paced editing with quick cuts
@@ -47,6 +49,8 @@ def build_platform_instructions(platform: Platform) -> str:
     return instructions.get(platform, "")
 
 
+# This is the main function to generate content ideas based on a trend and context. It calls the OpenAI API with a detailed prompt and returns structured ideas.
+#Built dynamically with the fetched trend data
 def build_user_prompt(
     trend_topic: str,
     niche: str,
@@ -116,7 +120,8 @@ Return ONLY a JSON object (not an array) with this exact structure:
     
     return prompt
 
-
+# This function calls the OpenAI API to generate content ideas based on the provided trend context and user prompt. 
+# It handles API interaction, response parsing, and error handling.
 def generate_content_ideas(
     trend_topic: str,
     niche: str,
@@ -218,7 +223,7 @@ def generate_content_ideas(
         
         generation_time = round(time.time() - start_time, 2)
         
-        print(f"   ✓ Generated {len(enriched_ideas)} ideas in {generation_time}s")
+        print(f"    Generated {len(enriched_ideas)} ideas in {generation_time}s")
         
         return {
             "success": True,
@@ -248,7 +253,8 @@ def generate_content_ideas(
             "generation_time": round(time.time() - start_time, 2)
         }
 
-
+# If a user selects an idea to generate a detailed script, this function can be called to create a shot-by-shot script based on the content idea. 
+# It uses the OpenAI API with a structured prompt to get a detailed script output.
 def generate_detailed_script(
     idea: dict[str, Any],
     include_dialogue: bool = True
@@ -282,7 +288,7 @@ def generate_detailed_script(
         system_prompt = """You are an expert video script writer specialising in short-form content. You create detailed, shot-by-shot scripts that are easy to follow and optimised for high engagement."""
         
         dialogue_instruction = "Include specific voiceover/dialogue text for each shot." if include_dialogue else "Focus on visual directions without dialogue."
-        
+        # The prompt guides the AI to create a structured script that content creators can easily film
         user_prompt = f"""Create a detailed, actionable video script for this content idea:
 
 IDEA OVERVIEW:
@@ -359,7 +365,7 @@ Return as JSON:
         
         generation_time = round(time.time() - start_time, 2)
         
-        print(f"   ✓ Script generated with {len(script.get('shots', []))} shots in {generation_time}s")
+        print(f"    Script generated with {len(script.get('shots', []))} shots in {generation_time}s")
         
         return {
             "success": True,

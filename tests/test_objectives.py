@@ -4,7 +4,7 @@ Pytest suite for Creator Compass - Objective-Based Testing
 Tests map to PDD objectives:
 1. Trend Analysis & Detection
 2. AI Content Ideation  
-3. Engagement Optimization
+3. Engagement Optimisation
 4. Explainable AI Integration
 5. Unified User Interface
 
@@ -29,7 +29,7 @@ from database.db_manager import (
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
-    """Initialize database for all tests"""
+    """Initialise database for all tests"""
     init_db()
     yield
     # Cleanup happens after all tests
@@ -287,10 +287,10 @@ class TestObjective2_ContentIdeation:
         assert idea["category"] == "Fitness"
 
 
-# ===== OBJECTIVE 3: ENGAGEMENT OPTIMIZATION =====
+# ===== OBJECTIVE 3: ENGAGEMENT OPTIMISATION =====
 
-class TestObjective3_EngagementOptimization:
-    """Objective 3: Engagement Optimization & Prediction"""
+class TestObjective3_EngagementOptimisation:
+    """Objective 3: Engagement Optimisation & Prediction"""
     
     def test_model_loads(self):
         """O3-01: Random Forest model loads successfully"""
@@ -366,7 +366,7 @@ class TestObjective4_ExplainableAI:
     """Objective 4: Explainable AI (SHAP) Integration"""
     
     def test_shap_explainer_loads(self):
-        """O4-01: SHAP explainer initializes"""
+        """O4-01: SHAP explainer initialises"""
         from app.utils.model_loader import load_shap_explainer
         
         explainer = load_shap_explainer()
@@ -499,7 +499,7 @@ class TestEndToEndWorkflow:
     """Integration tests - Full workflow validation"""
     
     def test_complete_user_journey(self, test_user):
-        """E2E-01: Complete workflow from trend to optimization"""
+        """E2E-01: Complete workflow from trend to optimisation"""
         # 1. User saves trend
         save_trend(
             test_user["id"],
@@ -527,7 +527,7 @@ class TestEndToEndWorkflow:
         ideas = get_saved_ideas(test_user["id"])
         assert len(ideas) == 1
         
-        # 3. User saves prediction for optimization
+        # 3. User saves prediction for optimisation
         from database.db_manager import save_prediction, get_prediction_history
         
         save_prediction(

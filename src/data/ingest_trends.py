@@ -90,7 +90,7 @@ def fetch_all_trends(
             apify_token=apify_token,
             max_trends=max_trends
         )
-        print(f"✓ Got {len(twitter_trends)} Twitter trends")
+        print(f" Got {len(twitter_trends)} Twitter trends")
     except Exception as e:
         print(f"✗ Twitter fetch failed: {e}")
         return
@@ -100,7 +100,7 @@ def fetch_all_trends(
     for i, trend in enumerate(twitter_trends, 1):
         print(f"  [{i}/{len(twitter_trends)}] {trend['topic']}")
         twitter_trends[i-1] = process_trend_nlp(trend)
-    print("✓ NLP processing complete")
+    print(" NLP processing complete")
     
     # Save to both JSON and CSV
     json_path = output_path.parent / "trends.json"
