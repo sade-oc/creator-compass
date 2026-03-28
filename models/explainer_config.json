@@ -1,0 +1,82 @@
+{
+  "model_path": "../../models/engagement_model_random_forest.joblib",
+  "feature_names": [
+    "caption_length",
+    "posting_hour",
+    "is_weekend",
+    "duration_sec",
+    "has_emoji",
+    "has_call_to_action",
+    "platform_tiktok",
+    "platform_youtube",
+    "category_art",
+    "category_automotive",
+    "category_beauty",
+    "category_comedy",
+    "category_diy",
+    "category_education",
+    "category_fashion",
+    "category_finance",
+    "category_fitness",
+    "category_food",
+    "category_gaming",
+    "category_lifestyle",
+    "category_music",
+    "category_news",
+    "category_pets",
+    "category_science",
+    "category_sports",
+    "category_tech",
+    "category_travel",
+    "trend_label_declining",
+    "trend_label_rising",
+    "trend_label_seasonal",
+    "trend_label_stable",
+    "season_fall",
+    "season_spring",
+    "season_summer",
+    "season_winter",
+    "media_type_nan",
+    "posting_day_encoded",
+    "caption_bin_encoded",
+    "posting_hour_bin_encoded"
+  ],
+  "baseline": 0.07531494142422589,
+  "feature_display_names": {
+    "duration_sec": "Video Duration",
+    "caption_length": "Caption Length",
+    "posting_hour": "Posting Hour",
+    "posting_day_encoded": "Day of Week",
+    "has_emoji": "Has Emoji",
+    "is_weekend": "Weekend Post",
+    "platform_tiktok": "Platform: TikTok",
+    "platform_youtube": "Platform: YouTube",
+    "platform_instagram": "Platform: Instagram",
+    "trend_label_rising": "Rising Trend",
+    "trend_label_stable": "Stable Trend",
+    "trend_label_declining": "Declining Trend",
+    "trend_label_seasonal": "Seasonal Trend"
+  },
+  "optimisation_tips": {
+    "duration_sec": {
+      "high_positive": "Your video length is optimal for engagement.",
+      "high_negative": "Consider shorter videos (<30 seconds) for better engagement.",
+      "neutral": "Video duration has minimal impact on your engagement."
+    },
+    "caption_length": {
+      "high_positive": "Your caption length is working well.",
+      "high_negative": "Try shorter captions (<50 characters) for higher engagement.",
+      "neutral": "Caption length has minimal impact on your engagement."
+    },
+    "posting_hour": {
+      "high_positive": "Great posting time choice!",
+      "high_negative": "Consider posting between 5-8 PM for better engagement.",
+      "neutral": "Posting time has minimal impact on your engagement."
+    },
+    "has_emoji": {
+      "high_positive": "Emojis are helping your engagement.",
+      "high_negative": "Consider adding emojis to your caption.",
+      "neutral": "Emoji usage has minimal impact on your engagement."
+    }
+  }
+}

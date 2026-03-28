@@ -126,7 +126,7 @@ selected_topics = st.multiselect(
 # Analyse button
 if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_topics) == 0):
     if len(selected_topics) > 5:
-        st.warning("Analyzing more than 5 trends may take 3-5 minutes. Consider selecting fewer.")
+        st.warning("Analysing more than 5 trends may take 3-5 minutes. Consider selecting fewer.")
     
     apify_token = os.getenv("APIFY_API_TOKEN")
     if not apify_token:
@@ -134,7 +134,7 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
         st.stop()
     
     # Fetch tweets and perform NLP analysis for each selected trend
-    with st.spinner(f"Analyzing {len(selected_topics)} trends (fetching tweets + NLP)..."):
+    with st.spinner(f"Analysing {len(selected_topics)} trends (fetching tweets + NLP)..."):
         analysed = st.session_state.get(SessionKeys.ANALYSED_TRENDS, {})
         
         progress_bar = st.progress(0)
@@ -169,7 +169,7 @@ if st.button("Analyse Selected Trends", type="primary", disabled=len(selected_to
                 analysed[topic] = analysed_trend
                 
             except Exception as e:
-                st.error(f"Error analyzing '{topic}': {e}")
+                st.error(f"Error analysing '{topic}': {e}")
             
             progress_bar.progress((i + 1) / len(selected_topics))
         

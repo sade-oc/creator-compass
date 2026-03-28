@@ -13,7 +13,7 @@
       "trends_fetched": 10
     },
     {
-      "operation": "M1-02: NLP trend categorization",
+      "operation": "M1-02: NLP trend categorisation",
       "status": "\u2705 PASS",
       "time_seconds": 0.0001,
       "trends_processed": 3,
@@ -35,17 +35,12 @@
       "operation": "M2-02: Generate detailed script",
       "status": "\u2705 PASS",
       "time_seconds": 0.0001,
-      "script_keys": [
-        "success",
-        "error",
-        "script",
-        "generation_time"
-      ]
+      "script_keys": ["success", "error", "script", "generation_time"]
     }
   ],
   "targets": {
     "M1_trend_fetching": "< 60s",
-    "M1_nlp_categorization": "< 20s",
+    "M1_nlp_categorisation": "< 20s",
     "M2_idea_generation": "< 15s",
     "M2_script_generation": "< 30s"
   }

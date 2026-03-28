@@ -50,7 +50,7 @@ def load_examples(csv_path: Optional[Path] = None) -> pd.DataFrame:
         return pd.DataFrame(columns=EXPECTED_COLUMNS)
     df = pd.read_csv(path)
    
-   # Normalize column names and ensure all expected columns are present
+   # Normalise column names and ensure all expected columns are present
     df.columns = [col.strip().lower() for col in df.columns]
     for col in EXPECTED_COLUMNS:
         if col not in df.columns:

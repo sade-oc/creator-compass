@@ -16,7 +16,7 @@ from .niche_config import get_all_niches, get_keywords_for_niche
 # Load environment variables from .env file
 load_dotenv()
 
-#Converts raw tweet volumes into a normalised score 
+#Converts raw tweet volumes into a normalised score so we can compare trends based on their tweet volumes more easily.
 def normalise_tweet_volumes(volumes: list[int]) -> list[float]:
     #Normalise tweet volumes to 7.0-9.5 range using logarithmic scaling.
     if not volumes:
@@ -123,7 +123,7 @@ def fetch_twitter_trends(
     
     print(f"   Retrieved {len(raw_trends)} raw trends from Apify")
     
-    # Parse and normalize trends
+    # Parse and normalise trends
     trends = []
     now = datetime.now(timezone.utc).isoformat()
    
@@ -144,9 +144,9 @@ def fetch_twitter_trends(
         rank_score = max(7.0, 9.5 - (i * 2.5 / max_trends))
         rank_score = round(rank_score, 1)
         
-        # Categorize using GPT
+        # Categorise using GPT
         if not fetch_tweets:
-            # Stage 1: Use GPT to categorize by topic name only
+            # Stage 1: Use GPT to categorise by topic name only
             import sys
             from pathlib import Path
             sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -154,7 +154,7 @@ def fetch_twitter_trends(
             
             niche = categorise_with_gpt(tweets=None, topic=topic)
         else:
-            # Stage 2: Placeholder - will be overridden by GPT categorization in NLP processing
+            # Stage 2: Placeholder - will be overridden by GPT categorisation in NLP processing
             niche = "General"
         
         # Only fetch tweets if requested (Stage 2 - user selected trends)

@@ -25,7 +25,7 @@ from database.db_manager import (
 )
 
 
-# ===== SETUP =====
+# SETUP 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
@@ -52,7 +52,7 @@ def test_user():
         delete_user(user_id)
 
 
-# ===== FOUNDATION: AUTHENTICATION =====
+# FOUNDATION: AUTHENTICATION 
 
 class TestAuthentication:
     """Foundation tests - Authentication gates all features"""
@@ -146,7 +146,7 @@ class TestAuthentication:
         delete_user(user_b_id)
 
 
-# ===== OBJECTIVE 1: TREND ANALYSIS =====
+# OBJECTIVE 1: TREND ANALYSIS 
 
 class TestObjective1_TrendAnalysis:
     """Objective 1: Trend Analysis & Detection"""
@@ -205,7 +205,7 @@ class TestObjective1_TrendAnalysis:
         assert 0 <= trend["trend_score"] <= 10
 
 
-# ===== OBJECTIVE 2: CONTENT IDEATION =====
+# OBJECTIVE 2: CONTENT IDEATION 
 
 class TestObjective2_ContentIdeation:
     """Objective 2: AI Content Ideation"""
@@ -287,7 +287,7 @@ class TestObjective2_ContentIdeation:
         assert idea["category"] == "Fitness"
 
 
-# ===== OBJECTIVE 3: ENGAGEMENT OPTIMISATION =====
+# OBJECTIVE 3: ENGAGEMENT OPTIMISATION 
 
 class TestObjective3_EngagementOptimisation:
     """Objective 3: Engagement Optimisation & Prediction"""
@@ -360,7 +360,7 @@ class TestObjective3_EngagementOptimisation:
         assert len(predictions) > 0
 
 
-# ===== OBJECTIVE 4: EXPLAINABLE AI =====
+# OBJECTIVE 4: EXPLAINABLE AI
 
 class TestObjective4_ExplainableAI:
     """Objective 4: Explainable AI (SHAP) Integration"""
@@ -397,7 +397,7 @@ class TestObjective4_ExplainableAI:
         # Explainer can rank feature importance
 
 
-# ===== OBJECTIVE 5: UI INTEGRATION =====
+# OBJECTIVE 5: UI INTEGRATION 
 
 class TestObjective5_UIIntegration:
     """Objective 5: Unified User Interface & Integration"""
@@ -493,7 +493,7 @@ class TestObjective5_UIIntegration:
         delete_user(user_2_id)
 
 
-# ===== INTEGRATION: END-TO-END WORKFLOW =====
+#  INTEGRATION: END-TO-END WORKFLOW 
 
 class TestEndToEndWorkflow:
     """Integration tests - Full workflow validation"""

@@ -35,11 +35,6 @@ from utils.model_loader import (
     predict_engagement,
     validate_input,
     load_shap_explainer,
-    get_valid_categories,
-    get_category_aliases,
-    get_valid_platforms,
-    get_valid_trend_types,
-    REQUIRED_FEATURES,
 )
 
 st.title("Engagement Optimiser")
@@ -328,7 +323,7 @@ if analyse_clicked:
             DATASET_MIN = 3.0  # Approximate 5th percentile
             DATASET_MAX = 15.0  # Approximate 95th percentile
             
-            # Normalize to 0-100 scale for "Performance Score"
+            # Normalise to 0-100 scale for "Performance Score"
             # This makes it intuitive: 50 = average, 100 = excellent
             if score <= DATASET_AVERAGE:
                 # Below average: 0-50 range
@@ -421,7 +416,7 @@ if analyse_clicked:
                 | **4-6%** | Below Average (2/5) | Room for improvement |
                 | **<4%** | Low (1/5) | Needs optimisation |
                 
-                **Your prediction: {score}%** → This puts you in the **{score_label.lower()}** category.
+                **Your prediction: {score}%** : This puts you in the **{score_label.lower()}** category.
                 
                 *Note: Engagement rates vary by platform. TikTok typically sees higher rates (8-15%) while YouTube tends to be lower (3-8%).*
                 """)

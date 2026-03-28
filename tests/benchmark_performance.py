@@ -94,7 +94,7 @@ def run_benchmarks():
         print("[M1-01] Skipped (no APIFY_API_TOKEN)")
     
     # Benchmark 2: NLP processing of trends
-    print("\n[M1-02] Processing trends with NLP (categorization)...", flush=True)
+    print("\n[M1-02] Processing trends with NLP (categorisation)...", flush=True)
     sample_trends = [
         {"text": "AI and machine learning revolutionizing software development", "platform": "twitter"},
         {"text": "New gaming console announcement sparks excitement", "platform": "twitter"},
@@ -111,7 +111,7 @@ def run_benchmarks():
         elapsed = time.perf_counter() - start
         print(f"   └─ Completed in {elapsed:.4f}s | Processed {len(processed_trends)} trends", flush=True)
         results.append({
-            "operation": "M1-02: NLP trend categorization",
+            "operation": "M1-02: NLP trend categorisation",
             "status": " PASS",
             "time_seconds": round(elapsed, 4),
             "trends_processed": len(processed_trends),
@@ -121,7 +121,7 @@ def run_benchmarks():
         elapsed = time.perf_counter() - start
         print(f"   └─ Failed after {elapsed:.4f}s: {str(e)[:60]}", flush=True)
         results.append({
-            "operation": "M1-02: NLP trend categorization",
+            "operation": "M1-02: NLP trend categorisation",
             "status": " FAIL",
             "time_seconds": round(elapsed, 4),
             "error": str(e)[:100]
@@ -238,7 +238,7 @@ def run_benchmarks():
     print("=" * 70)
     print("\nBenchmark Goals (from PDD):")
     print("  • M1 Trend Fetching: < 60s for full analysis")
-    print("  • M1 NLP Categorization: < 20s for batch")
+    print("  • M1 NLP Categorisation: < 20s for batch")
     print("  • M2 Idea Generation: < 15s per trend")
     print("  • M2 Script Generation: < 30s per idea")
     
@@ -255,7 +255,7 @@ def run_benchmarks():
             "results": results,
             "targets": {
                 "M1_trend_fetching": "< 60s",
-                "M1_nlp_categorization": "< 20s",
+                "M1_nlp_categorisation": "< 20s",
                 "M2_idea_generation": "< 15s",
                 "M2_script_generation": "< 30s"
             }

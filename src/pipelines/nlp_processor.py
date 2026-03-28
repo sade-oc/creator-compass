@@ -24,12 +24,12 @@ STOP_WORDS = set(stopwords.words('english'))
 
 
 def tokenize_text(text: str) -> list[str]:
-    """Tokenize and clean tweet text."""
+    """Tokenise and clean tweet text."""
     # Remove URLs
     text = re.sub(r'http\S+|www\S+', '', text)
     # Remove @mentions
     text = re.sub(r'@\w+', '', text)
-    # Tokenize
+    # Tokenise
     tokens = word_tokenize(text.lower())
     # Remove stopwords and short tokens
     tokens = [t for t in tokens if t.isalnum() and len(t) > 2 and t not in STOP_WORDS]
@@ -58,7 +58,7 @@ def extract_hashtags(tweets: list[dict[str, Any]]) -> list[tuple[str, int]]:
     counter = Counter(hashtags)
     return counter.most_common(10)
 
-
+# Analyse sentiment of tweets using TextBlob (simple polarity score).
 def analyse_sentiment(tweets: list[dict[str, Any]]) -> dict[str, Any]:
     """Analyse sentiment of tweets."""
     sentiments = []
@@ -119,7 +119,7 @@ def categorise_with_gpt(tweets: Optional[list[dict[str, Any]]] = None, topic: st
             sample_tweets = [t.get("text", "")[:150] for t in tweets[:5]]
             tweets_context = "\n".join([f"- {tweet}" for tweet in sample_tweets if tweet])
             
-            prompt = f"""Categorize this trending topic into ONE category.
+            prompt = f"""Categorise this trending topic into ONE category.
 
 Trending Topic: {topic}
 
@@ -130,20 +130,20 @@ Sample Tweets:
 
 Return ONLY the category name, nothing else."""
         else:
-            # Stage 1: Categorize based on topic name only
-            prompt = f"""Categorize this trending topic into ONE category.
+            # Stage 1: Categorise based on topic name only
+            prompt = f"""Categorise this trending topic into ONE category.
 
 Trending Topic: {topic}
 
 {categories_text}
 
 Examples:
-- "Grammys" → Entertainment/Media
-- "#SuperBowl" → Sports
-- "ChatGPT" → Tech/Gaming
-- "Biden" → Politics/News
-- "Bitcoin" → Finance
-- "#MondayMotivation" → General
+- "Grammys" : Entertainment/Media
+- "#SuperBowl" : Sports
+- "ChatGPT" : Tech/Gaming
+- "Biden" : Politics/News
+- "Bitcoin" : Finance
+- "#MondayMotivation" : General
 
 Return ONLY the category name, nothing else."""
 
@@ -202,7 +202,7 @@ def process_trend_nlp(trend: dict[str, Any]) -> dict[str, Any]:
     trend["hashtags"] = extract_hashtags(tweets)
     trend["sentiment"] = analyse_sentiment(tweets)
 
-    # Use GPT for intelligent categorization
+    # Use GPT for intelligent categorisation
     topic = trend.get("topic", "")
     trend["niche"] = categorise_with_gpt(tweets, topic)
     

@@ -1,0 +1,35 @@
+{
+  "instagram": {
+    "r2": -0.08011052938393548,
+    "n_samples": 29998,
+    "top_features": [
+      "caption_length",
+      "posting_hour",
+      "posting_day_encoded",
+      "media_type_image",
+      "media_type_carousel"
+    ]
+  },
+  "tiktok": {
+    "r2": -0.05188722782973709,
+    "n_samples": 28844,
+    "top_features": [
+      "duration_sec",
+      "posting_hour",
+      "caption_length",
+      "posting_day_encoded",
+      "has_emoji"
+    ]
+  },
+  "youtube": {
+    "r2": -0.060430507894140284,
+    "n_samples": 19235,
+    "top_features": [
+      "duration_sec",
+      "caption_length",
+      "posting_hour",
+      "posting_day_encoded",
+      "has_emoji"
+    ]
+  }
+}

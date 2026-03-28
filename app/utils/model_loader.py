@@ -1,6 +1,18 @@
-# Model Loader Utility for Creator Compass
+"""
+Engagement Prediction Engine for Module 3 (Engagement Optimiser).
 
-# This module provides functions to load, cache, and use the engagement prediction model.
+Loads the Random Forest model, transforms user input into 39 engineered features,
+and generates engagement predictions (0-1 scale) with SHAP-based explanations.
+
+Main functions:
+- load_model(): Cache & load pre-trained RF model
+- prepare_features(): Convert input to 39-feature DataFrame
+- predict_engagement(): Generate engagement prediction + confidence
+- validate_input(): Validate user input before prediction
+- load_shap_explainer(): Load SHAP for feature explanations
+
+Note: R² = 0.41 (model explains content fundamentals, not viral moments or creator fame)
+"""
 
 import joblib
 import pandas as pd
@@ -148,10 +160,20 @@ except Exception:
 
 # MODEL LOADING FUNCTIONS
 
-@st.cache_resource # Cache the loaded model to avoid reloading on every prediction
-# loads trained model from disk and caches it for future use
+@st.cache_resource
 def load_model():
-   
+    """Load pre-trained Random Forest engagement model from disk.
+    
+    Cached at session level to avoid reloading on every prediction.
+    Model predicts engagement rate (0-1 scale) for content optimisation.
+    
+    Returns:
+        RandomForestRegressor: Trained model with 39 features
+        
+    Raises:
+        FileNotFoundError: If model file not found at MODEL_PATH
+        Exception: If joblib.load() fails
+    """
     try:
         if not MODEL_PATH.exists():
             raise FileNotFoundError(
@@ -196,9 +218,16 @@ def load_shap_explainer():
         print(f" Warning: Could not load SHAP explainer: {str(e)}")
         return None
 
-# loads models metadate from config file 
 def load_model_config() -> Dict[str, Any]:
-
+    """Load model configuration from JSON file.
+    
+    Retrieves model metadata including training info, performance metrics,
+    feature list, output scaling parameters, and model version.
+    
+    Returns:
+        Dict[str, Any]: Configuration dictionary. Empty dict if file not found.
+        Keys: model_info, output_scaling, feature_list
+    """
     try:
         if not CONFIG_PATH.exists():
             print(f"  Warning: Config not found at {CONFIG_PATH}")
@@ -303,7 +332,7 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     month = input_data.get('month', datetime.now().month)  # For season calculation
     has_media = input_data.get('has_media', True)  # Whether post has media
     
-    # Normalize category using aliases
+    # Normalise category using aliases
     category = CATEGORY_ALIASES.get(category, category)
     if category not in VALID_CATEGORIES:
         category = 'lifestyle'  # Default fallback
@@ -311,9 +340,8 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     # Initialise feature dictionary (in model feature order)
     features = {}
     
-    # ══════════════════════════════════════════════════════════════════════════
     # 1. CORE NUMERIC FEATURES (features 1-6)
-    # ══════════════════════════════════════════════════════════════════════════
+  
     features['caption_length'] = len(caption)
     features['posting_hour'] = int(posting_hour)
     
@@ -328,9 +356,9 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     features['has_emoji'] = 1 if _detect_emoji(caption) else 0
     features['has_call_to_action'] = 1 if _detect_cta(caption) else 0
     
-    # ══════════════════════════════════════════════════════════════════════════
+   
     # 2. PLATFORM ONE-HOT (features 7-8) - instagram is reference category
-    # ══════════════════════════════════════════════════════════════════════════
+   
     platform_clean = platform.replace(' ', '').lower()
     if 'youtube' in platform_clean:
         platform_clean = 'youtube'
@@ -342,29 +370,29 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     features['platform_tiktok'] = 1 if platform_clean == 'tiktok' else 0
     features['platform_youtube'] = 1 if platform_clean == 'youtube' else 0
     
-    # ══════════════════════════════════════════════════════════════════════════
+  
     # 3. CATEGORY ONE-HOT (features 9-27) - 19 categories alphabetically
-    # ══════════════════════════════════════════════════════════════════════════
+   
     for cat in VALID_CATEGORIES:
         features[f'category_{cat}'] = 1 if category == cat else 0
     
-    # ══════════════════════════════════════════════════════════════════════════
+   
     # 4. TREND LABEL ONE-HOT (features 28-31)
-    # ══════════════════════════════════════════════════════════════════════════
+    
     trend_lower = trend_type.lower() if trend_type else None
     for trend in VALID_TREND_TYPES:
         features[f'trend_label_{trend}'] = 1 if trend_lower == trend else 0
     
-    # ══════════════════════════════════════════════════════════════════════════
+    
     # 5. SEASON ONE-HOT (features 32-35)
-    # ══════════════════════════════════════════════════════════════════════════
+    
     current_season = _get_season(month)
     for season in VALID_SEASONS:
         features[f'season_{season}'] = 1 if current_season == season else 0
     
-    # ══════════════════════════════════════════════════════════════════════════
+   
     # 6. ENCODED FEATURES (features 36-39)
-    # ══════════════════════════════════════════════════════════════════════════
+    
     # media_type_nan: 1 if no media type info, 0 if known
     features['media_type_nan'] = 0 if has_media else 1
     
@@ -386,9 +414,7 @@ def prepare_features(input_data: Dict[str, Any]) -> pd.DataFrame:
     hour_bin = _get_hour_bin(features['posting_hour'])
     features['posting_hour_bin_encoded'] = HOUR_BIN_ENCODER.get(hour_bin, 0)
     
-    # ══════════════════════════════════════════════════════════════════════════
     # CREATE DATAFRAME WITH FEATURES IN CORRECT ORDER
-    # ══════════════════════════════════════════════════════════════════════════
     df = pd.DataFrame([features])
     
     # Ensure columns are in the exact order expected by the model
@@ -474,33 +500,25 @@ def predict_engagement(input_data: Dict[str, Any]) -> Dict[str, Any]:
         }
 
 
-# HELPER FUNCTIONS
-
-def get_valid_categories() -> list:
-    """Return list of valid content categories."""
-    return VALID_CATEGORIES.copy()
 
 
-def get_category_aliases() -> Dict[str, str]:
-    """Return category alias mapping for user-facing conversions."""
-    return CATEGORY_ALIASES.copy()
-
-
-def get_valid_platforms() -> list:
-    return VALID_PLATFORMS.copy()
-
-
-def get_valid_trend_types() -> list:
-    return VALID_TREND_TYPES.copy()
-
-
-def get_valid_seasons() -> list:
-    return VALID_SEASONS.copy()
-
-
-# checks user input before it reaches the model 
 def validate_input(input_data: Dict[str, Any]) -> tuple[bool, str]:
-
+    """Validate user input before passing to engagement prediction model.
+    
+    Checks required fields and value ranges:
+    - Platform must be one of: tiktok, instagram, youtube
+    - posting_hour must be 0-23
+    - duration_sec must be 0-3600 seconds
+    - category must be valid or have an alias
+    
+    Args:
+        input_data: Dict with keys: platform, posting_hour, duration_sec, category
+        
+    Returns:
+        Tuple[bool, str]: (is_valid, error_message)
+        - (True, "") if all validations pass
+        - (False, "error description") if validation fails
+    """
     # Check required fields
     if 'platform' not in input_data:
         return False, "Missing required field: 'platform'"
@@ -534,9 +552,7 @@ def validate_input(input_data: Dict[str, Any]) -> tuple[bool, str]:
 
 
 if __name__ == "__main__":
-    print("=" * 70)
     print("MODEL LOADER UTILITY - Creator Compass")
-    print("=" * 70)
     print(f"\nModel Path: {MODEL_PATH}")
     print(f"Metadata Path: {METADATA_PATH}")
     print(f"Config Path: {CONFIG_PATH}")
@@ -548,10 +564,9 @@ if __name__ == "__main__":
     print(f"Valid Seasons: {VALID_SEASONS}")
     
     # Test prediction
-    print("\n" + "-" * 70)
     print("Testing prediction...")
     test_input = {
-        'caption': 'Check out this amazing fitness tip! 💪 Follow for more! #fitness',
+        'caption': 'Check out this amazing fitness tip! Follow for more! #fitness',
         'platform': 'tiktok',
         'posting_hour': 19,
         'posting_day': 'saturday',
@@ -564,4 +579,4 @@ if __name__ == "__main__":
     print(f"Features used: {result['features_used']}")
     print(f"Model version: {result['model_version']}")
     
-    print("\n" + "=" * 70)
+
