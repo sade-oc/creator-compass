@@ -239,9 +239,7 @@ pytest tests/test_objectives.py -v
 Only choose this path if you want to run the **live Streamlit application** with real API integration.
 
 ### Step 1: Install Dependencies
-
-Follow steps 1-3 from above:
-
+Follow the same steps as in the testing section to set up Python, virtual environment, and install dependencies.
 1. Extract repository
 2. Create virtual environment (`.venv`)
 3. Install dependencies (`pip install -r requirements.txt`)
